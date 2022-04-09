@@ -1,6 +1,43 @@
-h1 {
-    border: 2px #eee solid;
-    color: brown;
+table {
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    width: 100%; 
+    font-size: smaller;
+    border:0px transparent;
     text-align: center;
-    padding: 10px;
+}
+th {
+    width: auto;
+    font:bold;
+    background-color: darkblue;
+    color:white;
+}
+tr:nth-child(even) {
+    background-color:#add8e6;
+}
+td {
+    width: auto;
+}
+a {
+    text-decoration: none;
+    color: black;
+}
+.outergmbutton {
+    text-align: center;
+    padding: 0.5%;
+    color: white;
+}
+.gmbutton {  
+    padding: 2% 5% 2% 5%;
+    background-color: midnightblue;
+    color: white;
+    border-radius: 100px;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 2%;
+}
+p {
+    text-align: center;
+    margin-top: 2%;
+    margin-bottom: 2%;
 }

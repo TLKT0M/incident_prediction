@@ -25,7 +25,6 @@ def get_main_Df():
     new_df.replace(',','.')
     return new_df
 
-
 def get_location_information():
     df = pd.read_csv(("data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
     return df

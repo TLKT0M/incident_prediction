@@ -5,8 +5,18 @@
 {% block body %}
 
 <div class="content">
-    <h1>template</h1>
-    <table>
+    <h1>
+        Unfälle
+    </h1>
+    <div>
+        <p>
+            Your Filters
+             {%for filt in filtering %}
+                {{filt}}, 
+            {%endfor%}
+        </p>
+    </div>
+    <table cellspacing="0" cellpadding="0">
         <tr>
             <th>ULAND</th>
             <th>UREGBEZ</th>
@@ -25,11 +35,11 @@
             <th>IstFuss</th>
             <th>IstKrad</th>
             <th>IstSonstige</th>
-            <th>STRZUSTAND</th>
             <th>XGCSWGS84</th>
             <th>YGCSWGS84</th>
+            <th>Google Link</th>
         </tr>
-        {% for incident in incidents%}
+{% for incident in incidents%}
         <tr>
             <td>{{incident.ULAND}}</td>
             <td>{{incident.UREGBEZ}}</td>
@@ -48,16 +58,32 @@
             <td>{{incident.IstFuss}}</td>
             <td>{{incident.IstKrad}}</td>
             <td>{{incident.IstSonstige}}</td>
-            <td>{{incident.STRZUSTAND}}</td>
             <td>{{incident.XGCSWGS84}}</td>
             <td>{{incident.YGCSWGS84}}</td>
-
+            <td class="outergmbutton"><a class="gmbutton" href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google Maps</a></td>
         </tr>
-     {%endfor%}
+{%endfor%}
+        <tr class="sumline">
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+{%for stat in statList%}
+            <td>{{ stat}}%</td>
+{%endfor%}
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
     </table>
-    <form action="/" method="POST">
-        <input type="text" name="content" id="content">
-        <input type="submit" value="Add Task">
-    </form>
 </div>
 {%endblock%}
