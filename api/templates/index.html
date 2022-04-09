@@ -1,0 +1,63 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Test1</title>
+{%endblock%}
+{% block body %}
+
+<div class="content">
+    <h1>template</h1>
+    <table>
+        <tr>
+            <th>ULAND</th>
+            <th>UREGBEZ</th>
+            <th>UKREIS</th>
+            <th>UGEMEINDE</th>
+            <th>UJAHR</th>
+            <th>UMONAT</th>
+            <th>USTUNDE</th>
+            <th>UWOCHENTAG</th>
+            <th>UKATEGORIE</th>
+            <th>UART</th>
+            <th>UTYP1</th>
+            <th>ULICHTVERH</th>
+            <th>IstRad</th>
+            <th>IstPKW</th>
+            <th>IstFuss</th>
+            <th>IstKrad</th>
+            <th>IstSonstige</th>
+            <th>STRZUSTAND</th>
+            <th>XGCSWGS84</th>
+            <th>YGCSWGS84</th>
+        </tr>
+        {% for incident in incidents%}
+        <tr>
+            <td>{{incident.ULAND}}</td>
+            <td>{{incident.UREGBEZ}}</td>
+            <td>{{incident.UKREIS}}</td>
+            <td>{{incident.UGEMEINDE}}</td>
+            <td>{{incident.UJAHR}}</td>
+            <td>{{incident.UMONAT}}</td>
+            <td>{{incident.USTUNDE}}</td>
+            <td>{{incident.UWOCHENTAG}}</td>
+            <td>{{incident.UKATEGORIE}}</td>
+            <td>{{incident.UART}}</td>
+            <td>{{incident.UTYP1}}</td>
+            <td>{{incident.ULICHTVERH}}</td>
+            <td>{{incident.IstRad}}</td>
+            <td>{{incident.IstPKW}}</td>
+            <td>{{incident.IstFuss}}</td>
+            <td>{{incident.IstKrad}}</td>
+            <td>{{incident.IstSonstige}}</td>
+            <td>{{incident.STRZUSTAND}}</td>
+            <td>{{incident.XGCSWGS84}}</td>
+            <td>{{incident.YGCSWGS84}}</td>
+
+        </tr>
+     {%endfor%}
+    </table>
+    <form action="/" method="POST">
+        <input type="text" name="content" id="content">
+        <input type="submit" value="Add Task">
+    </form>
+</div>
+{%endblock%}
