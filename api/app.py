@@ -15,6 +15,10 @@ def JsonBuilder(obj):
     retValue = {}
     retValue['XGCSWGS84'] = obj.XGCSWGS84
     retValue['YGCSWGS84'] = obj.YGCSWGS84
+    retValue['IstRad'] = obj.IstRad
+    retValue['IstPKW'] = obj.IstPKW
+    retValue['IstFuss'] = obj.IstFuss
+    retValue['IstKrad'] = obj.IstKrad
     return retValue
 
 
