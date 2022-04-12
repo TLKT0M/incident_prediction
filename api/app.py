@@ -1,5 +1,9 @@
 # from crypt import methods
+from scipy.spatial import distance
+from sklearn.cluster import DBSCAN
+from matplotlib import pyplot as plt
 from distutils.log import debug
+from get_data import get_main_Df
 import json
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
@@ -55,6 +59,7 @@ def incident(land,reg,kreis,gem):
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
     locations = json.dumps(locations)
+
     #region do stats
     
     count_all = len(incidents)
@@ -75,10 +80,24 @@ def incident(land,reg,kreis,gem):
         statList.append(round((count_IstPKW / count_all)*100,2)) 
     except ZeroDivisionError: 
         return jsonify("Nothing Found, Please enter Valid Numbers")
+
     #endregion
+    new_df = get_main_Df()
+    df= new_df[["XGCSWGS84","YGCSWGS84"]]
+    df = df.to_numpy()
+    print(df)
+    dbscan(df,0.5,3)
+
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
     return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations)
 
+def dbscan(X, eps, min_samples):
+    db = DBSCAN(eps=eps, min_samples=min_samples)
+    db.fit(X)
+    y_pred = db.fit_predict(X)
+    plt.scatter(X[:,0], X[:,1],c=y_pred, cmap='Paired')
+    plt.title("DBSCAN")
+    plt.show()
 
 if __name__ == "__main__":
     app.run(debug=True)
