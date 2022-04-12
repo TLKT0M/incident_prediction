@@ -3,3 +3,4 @@
 __pycache__
 *.db
 api/data/test.db
+*.db
