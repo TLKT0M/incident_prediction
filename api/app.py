@@ -1,4 +1,4 @@
-from crypt import methods
+# from crypt import methods
 from distutils.log import debug
 import json
 from sqlalchemy import text
@@ -10,6 +10,12 @@ import pandas as pd
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
+
+def JsonBuilder(obj):
+    retValue = {}
+    retValue['XGCSWGS84'] = obj.XGCSWGS84
+    retValue['YGCSWGS84'] = obj.YGCSWGS84
+    return retValue
 
 
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/')
@@ -39,11 +45,16 @@ def incident(land,reg,kreis,gem):
         filterList.append("UGEMEINDE=" + gem)
     filterst = ""
     for fil in filterList:
-        filterst += fil + " and "
+        filterst += fil + " and "  
     filterst = filterst[:-4]
     #endregion
 
     incidents = Incident.query.filter(text(filterst)).all()
+    
+    locations = {}
+    for i in range(len(incidents)):
+        locations['{}'.format(i)] = JsonBuilder(incidents[i])
+    locations = json.dumps(locations)
     #region do stats
     
     count_all = len(incidents)
@@ -61,14 +72,14 @@ def incident(land,reg,kreis,gem):
         statList.append(round((count_IstFuss / count_all)*100,2))
         statList.append(round((count_IstRad / count_all)*100,2))
         statList.append(round((count_IstKrad / count_all)*100,2))
-        statList.append(round((count_IstPKW / count_all)*100,2))
-    except ZeroDivisionError:
+        statList.append(round((count_IstPKW / count_all)*100,2)) 
+    except ZeroDivisionError: 
         return jsonify("Nothing Found, Please enter Valid Numbers")
     #endregion
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
-    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering )
+    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations)
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-    
+     

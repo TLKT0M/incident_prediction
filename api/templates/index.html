@@ -4,6 +4,9 @@
 {%endblock%}
 {% block body %}
 
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+<link href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet" />
+
 <div class="content">
     <h1>
         Unfälle
@@ -11,10 +14,11 @@
     <div>
         <p>
             Your Filters
-             {%for filt in filtering %}
-                {{filt}}, 
+            {%for filt in filtering %}
+            {{filt}},
             {%endfor%}
         </p>
+        <div id="osm-map"></div>
     </div>
     <table cellspacing="0" cellpadding="0">
         <tr>
@@ -39,7 +43,7 @@
             <th>YGCSWGS84</th>
             <th>Google Link</th>
         </tr>
-{% for incident in incidents%}
+        {% for incident in incidents%}
         <tr>
             <td>{{incident.ULAND}}</td>
             <td>{{incident.UREGBEZ}}</td>
@@ -60,9 +64,11 @@
             <td>{{incident.IstSonstige}}</td>
             <td>{{incident.XGCSWGS84}}</td>
             <td>{{incident.YGCSWGS84}}</td>
-            <td class="outergmbutton"><a class="gmbutton" href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google Maps</a></td>
+            <td class="outergmbutton"><a class="gmbutton"
+                    href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google
+                    Maps</a></td>
         </tr>
-{%endfor%}
+        {%endfor%}
         <tr class="sumline">
             <td></td>
             <td></td>
@@ -76,9 +82,9 @@
             <td></td>
             <td></td>
             <td></td>
-{%for stat in statList%}
-            <td>{{ stat}}%</td>
-{%endfor%}
+            {%for stat in statList%}
+            <td>{{stat}}%</td>
+            {%endfor%}
             <td></td>
             <td></td>
             <td></td>
@@ -86,4 +92,52 @@
         </tr>
     </table>
 </div>
+
+<script>
+    // Load different Icons
+    var carCrashIcon = L.icon({
+        iconUrl: 'Icons/car-crash.svg',
+        iconSize: [30, 90],
+        popupAnchor: [-3, -76],
+    });
+
+    var bicycleCrashIcon = L.icon({
+        iconUrl: 'Icons/bicycle-crash.svg',
+        iconSize: [20, 60],
+        popupAnchor: [-3, -76],
+    });
+
+    // Where you want to render the map.
+    var element = document.getElementById('osm-map');
+
+    // Height has to be set. You can do this in CSS too.
+    element.style = 'height:300px;';
+
+    // Create Leaflet map on map element.
+    var map = L.map(element);
+
+    // Add OSM tile layer to the Leaflet map.
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Target's GPS coordinates.
+    var target = null;
+    var locations = JSON.parse('{{locations|safe}}')
+
+    for(i in locations){
+        // Create marker element for every crash in list
+        target = L.latLng(locations[i].YGCSWGS84, locations[i].XGCSWGS84);
+
+        // Place marker on location
+        L.marker(target).addTo(map);
+        if(i == 200){
+            break;
+        }
+    }
+
+    // Set map's center to target with zoom 13.
+    map.setView(target, 13);
+
+</script>
 {%endblock%}
