@@ -1,16 +1,10 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt
-from sklearn.datasets import make_blobs
-from sklearn.cluster import KMeans
-X, y = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
-plt.scatter(X[:,0], X[:,1])
-kmeans = KMeans(n_clusters=4, init='k-means++', max_iter=300, n_init=10, random_state=0)
-pred_y = kmeans.fit_predict(X)
-plt.scatter(X[:,0], X[:,1])
-plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=300, c='red')
+from scipy.stats import gaussian_kde
+data = [1.5]*7 + [2.5]*2 + [3.5]*8 + [4.5]*3 + [5.5]*1 + [6.5]*8
+density = gaussian_kde(data)
+xs = np.linspace(0,8,200)
+density.covariance_factor = lambda : .25
+density._compute_covariance()
+plt.plot(xs,density(xs))
 plt.show()
-
-"""
-GetToTheClustering:)
-"""
