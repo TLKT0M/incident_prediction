@@ -21,6 +21,23 @@ def JsonBuilder(obj):
     retValue['IstKrad'] = obj.IstKrad
     return retValue
 
+@app.route('/', methods=['GET', 'POST'])
+def start_page(): 
+    df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
+    df['Name'] = df['Name'].str.replace(r"[\']", r"") 
+    if request.method == 'POST':
+        value = request.form['input_city']
+        df_res = df.loc[df['Name'] == value]
+        land = df_res['Land'].iloc[0]
+        req = df_res['RB'].iloc[0]
+        kreis = df_res['Kreis'].iloc[0]
+        gem = df_res['Gem'].iloc[0]
+        return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem))
+
+    df_dict = df['Name'].to_dict()
+    cities = json.dumps(df_dict)
+    return render_template('startpage.html', cities=cities) 
+
 
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/')
 def incident(land,reg,kreis,gem):
@@ -42,7 +59,7 @@ def incident(land,reg,kreis,gem):
     if land.isnumeric():
         filterList.append("ULAND=" + land)
     if reg.isnumeric():
-        filterList.append("UREGBEZ=" + reg)
+        filterList.append("UREGBEZ=" + reg) 
     if kreis.isnumeric():
         filterList.append("UKREIS=" + kreis)
     if gem.isnumeric():
