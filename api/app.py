@@ -1,5 +1,10 @@
 # from crypt import methods
+import numpy as np
+from scipy.spatial import distance
+from sklearn.cluster import DBSCAN
+from matplotlib import pyplot as plt
 from distutils.log import debug
+from get_data import get_main_Df
 import json
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
@@ -41,7 +46,7 @@ def start_page():
 
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/')
 def incident(land,reg,kreis,gem):
-
+    print("string")
     #region validate input
     if not(land == "*" or land.isnumeric()):
         return jsonify("Error: invalid expression in land")
@@ -76,6 +81,7 @@ def incident(land,reg,kreis,gem):
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
     locations = json.dumps(locations)
+
     #region do stats
     
     count_all = len(incidents)
@@ -96,11 +102,28 @@ def incident(land,reg,kreis,gem):
         statList.append(round((count_IstPKW / count_all)*100,2)) 
     except ZeroDivisionError: 
         return jsonify("Nothing Found, Please enter Valid Numbers")
+    
     #endregion
+    XGCSWGS84 =[]
+    YGCSWGS84 =[]
+    for incident in incidents:
+        XGCSWGS84.append(incident.XGCSWGS84)
+        YGCSWGS84.append(incident.YGCSWGS84)
+    df = np.array([YGCSWGS84,XGCSWGS84])
+    dbscan(df,0.5,1)
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
     return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations)
 
+def dbscan(X, eps, min_samples):
+    db = DBSCAN(eps=eps, min_samples=min_samples)
+    db.fit(X)
+    y_pred = db.fit_predict(X)
+    print(y_pred)
+    plt.scatter(X[:,0], X[:,1],c=y_pred, cmap='Paired')
+    plt.title("DBSCAN")
+    plt.savefig('books_read.png')
 
 if __name__ == "__main__":
+  
     app.run(debug=True)
      
