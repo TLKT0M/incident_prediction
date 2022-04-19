@@ -25,5 +25,13 @@ Woche 12.04.2022 bis 19.04.2022
         - Fehler in den Regierungsbezirken behoben (Überflüssiges Exit)
         - Bei falscher Eingabe der Stadt keine Abfrage an Api
         - Datenbankbefehle zur Einbindung von Regierungsbezirken in Datenbank
+    - Clustering 
+        - Zunächst KMeans beispiele zum laufen gebracht 
+        - Densitiybased mit DBSCAN
+        - Problematiken mit der Auswahl der Parameter
+        - Ausgabe der Cluster mittels PyPlot
+        - Gruppieren der Cluster und Finden des Mittelpunkts
+        - Übergabe der Werte 
+        - Integration der Cluster Mittelpunkte in die Karte und größenbasiertes anzeigen
 
 
