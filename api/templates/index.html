@@ -130,8 +130,16 @@
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    var clusters = JSON.parse('{{clusters|safe}}')
+    for(i in clusters){ 
+        L.circle([clusters[i]['y'], clusters[i]['x']], {color: "red",
+          fillColor: "#f03",
+          fillOpacity: 0.5,
+          radius: (clusters[i]['count']*10)}).addTo(map);
+    }
+
     // Target's GPS coordinates.
-    var target = null;
+    
     var locations = JSON.parse('{{locations|safe}}')
 
     for(i in locations){
@@ -157,6 +165,7 @@
         }
     }
 
+    
     // Set map's center to target with zoom 12.
     map.setView(target, 12);
 

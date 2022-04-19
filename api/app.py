@@ -1,4 +1,5 @@
 # from crypt import methods
+import imp
 import numpy as np
 from scipy.spatial import distance
 from sklearn.cluster import DBSCAN
@@ -12,6 +13,8 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 from classes.incident import Incident
 import pandas as pd
+from clustering import get_clusters
+from classes.cluster import Cluster
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
@@ -25,6 +28,14 @@ def JsonBuilder(obj):
     retValue['IstFuss'] = obj.IstFuss
     retValue['IstKrad'] = obj.IstKrad
     return retValue
+
+def ClusterBuilder(obj):
+    retValue = {}
+    retValue['XGCSWGS84_agg'] = obj.XGCSWGS84
+    retValue['YGCSWGS84_agg'] = obj.YGCSWGS84
+    retValue['size'] = obj.COUNT
+    return retValue
+
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page(): 
@@ -40,13 +51,14 @@ def start_page():
         return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem))
 
     df_dict = df['Name'].to_dict()
+    #print(df_dict)
     cities = json.dumps(df_dict)
     return render_template('startpage.html', cities=cities) 
 
 
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/')
 def incident(land,reg,kreis,gem):
-    print("string")
+    #print("string")
     #region validate input
     if not(land == "*" or land.isnumeric()):
         return jsonify("Error: invalid expression in land")
@@ -74,14 +86,21 @@ def incident(land,reg,kreis,gem):
         filterst += fil + " and "  
     filterst = filterst[:-4]
     #endregion
-
+    print(filterst)
     incidents = Incident.query.filter(text(filterst)).all()
     
+    clusters = get_clusters(filterst)
+    cluster = pd.DataFrame(clusters, columns=('x','y','count'))
+    cluster['x'] = clusters[['XGCSWGS84_agg']]
+    cluster['y'] = clusters[['YGCSWGS84_agg']]
+    cluster['count'] = clusters[['count']]
+    clust = cluster.to_json(orient='records')
+    print(clust)
     locations = {}
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
     locations = json.dumps(locations)
-
+    #print(locations)
     #region do stats
     
     count_all = len(incidents)
@@ -110,9 +129,9 @@ def incident(land,reg,kreis,gem):
         XGCSWGS84.append(incident.XGCSWGS84)
         YGCSWGS84.append(incident.YGCSWGS84)
     df = np.array([YGCSWGS84,XGCSWGS84])
-
+    #print(locations)
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
-    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations)
+    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations, clusters=clust)
 
 
 
