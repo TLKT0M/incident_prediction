@@ -30,12 +30,7 @@ def JsonBuilder(obj):
     retValue['IstKrad'] = obj.IstKrad
     return retValue
 
-def ClusterBuilder(obj):
-    retValue = {}
-    retValue['XGCSWGS84_agg'] = obj.XGCSWGS84
-    retValue['YGCSWGS84_agg'] = obj.YGCSWGS84
-    retValue['size'] = obj.COUNT
-    return retValue
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -95,7 +90,7 @@ def incident(land,reg,kreis,gem, city_name):
     incidents = Incident.query.filter(text(filterst)).all()
     
     clusters = get_clusters(filterst)
-    cluster = pd.DataFrame(clusters, columns=('x','y','count'))
+    cluster = pd.DataFrame(clusters, columns=['x','y','count'])
     cluster['x'] = clusters[['XGCSWGS84_agg']]
     cluster['y'] = clusters[['YGCSWGS84_agg']]
     cluster['count'] = clusters[['count']]
@@ -137,6 +132,9 @@ def incident(land,reg,kreis,gem, city_name):
     #print(locations)
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
     return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations, clusters=clust, city_name=city_name)
+
+
+def 
 
 
 
