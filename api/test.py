@@ -2,6 +2,7 @@
 import sqlite3
 # from crypt import methods
 import numpy as np
+from pyparsing import col
 from scipy.spatial import distance
 from sklearn.cluster import DBSCAN
 from matplotlib import pyplot as plt
@@ -15,18 +16,15 @@ import datetime
 from classes.incident import Incident
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-def dbscan(X, eps, min_samples):
-   
-    #db = DBSCAN(eps=eps, min_samples=min_samples).fit(X)
-    db = NearestNeighbors(n_neighbors=4, algorithm='ball_tree').fit(X)
-    distances, indices = db.kneighbors(X)
-    #print(db.labels_)
-    print(X[:,0],X[:,1])
+import numpy as np
+import pandas as pd
+import math
+import matplotlib.pyplot as plt
+import matplotlib
 
-    plt.scatter(X[:,0],X[:,1], c=indices)
-   
-    plt.title("DBSCAN")
-    plt.show()
+from sklearn.cluster import DBSCAN
+
+
 if __name__ == "__main__":
     # creating file path
     dbfile = 'api/data/test.db'
@@ -37,14 +35,23 @@ if __name__ == "__main__":
     cur = con.cursor()
 
     # reading all table names5/9/70/044/
-    table_list = [a for a in cur.execute("SELECT XGCSWGS84,YGCSWGS84 from incident  WHERE ULAND=5 AND UREGBEZ=9 AND UKREIS=70 AND UGEMEINDE=044 LIMIT(50000)")]
+    table_list = [a for a in cur.execute("SELECT XGCSWGS84,YGCSWGS84 from incident  ")]
     # here is you table list
 
 
     df = np.array(table_list)
+    df = pd.DataFrame(table_list, columns=['XGCSWGS84','YGCSWGS84'])
 
-    dbscan(df,0.5,1)
-   
 
-    # Be sure to close the connection
+    dbscan=DBSCAN(eps=0.0005,min_samples=3)
+    dbscan.fit(df[['XGCSWGS84','YGCSWGS84']])
+    df['DBSCAN_labels']=dbscan.labels_ 
+    print(df['DBSCAN_labels'])
+    # Plotting resulting clusters
+    plt.figure(figsize=(10,10))
+    plt.scatter(df['XGCSWGS84'],df['YGCSWGS84'],c=df['DBSCAN_labels'],s=15)
+    plt.title('DBSCAN Clustering',fontsize=20)
+    plt.xlabel('Feature 1',fontsize=14)
+    plt.ylabel('Feature 2',fontsize=14)
+    plt.show()
     con.close()
