@@ -134,10 +134,6 @@ def incident(land,reg,kreis,gem, city_name):
     return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations, clusters=clust, city_name=city_name)
 
 
-def 
-
-
-
 if __name__ == "__main__":
   
     app.run(debug=True)

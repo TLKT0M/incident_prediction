@@ -49,5 +49,5 @@ def get_clusters(filters):
     return result_df
 
 
-#if __name__ == "__main__":
-#    get_figure(" ULAND=5 and UREGBEZ=9 and UKREIS=70 and UGEMEINDE=44 ")
+if __name__ == "__main__":
+    get

@@ -7,6 +7,7 @@ from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from classes.incident import Incident
 from classes.stateinfo import Stateinfo
+from classes.vehicleinfo import Vehicleinfo
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../api/data/test.db'
 db = SQLAlchemy(app)
@@ -30,6 +31,10 @@ def get_location_information():
     df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
     return df
 
+def get_vehicle_information():
+    df = pd.read_csv(("api/data/pkwanzahl.csv").replace('_', ''),delimiter=';')
+    return df
+
 def import_to_db(df):
     print(df.columns)
     print(df)
@@ -46,5 +51,12 @@ def import_stateinfo_to_db(df):
         db.session.add(new_stateinfo)
         db.session.commit()
 
+def import_vehicleinfo_to_db(df):
+    print(df)
+    for row in df.itertuples():
+        new_vehicleinfo = Vehicleinfo(Key=row[1], KRADanzahl=row[2], KRADweibl=row[3], PKW=row[4], PKWproTausendEW=row[5], KFZinsgesamt=row[6], KFZproTausendEW=row[7])
+        db.session.add(new_vehicleinfo)
+        db.session.commit()
+
 if __name__ == "__main__":
-        import_stateinfo_to_db(get_location_information())
+        import_vehicleinfo_to_db(get_vehicle_information())
