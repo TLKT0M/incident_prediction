@@ -77,7 +77,7 @@
         <div class="autocomplete" style="width:300px;">
             <input id="myInput" type="text" name="input_city" placeholder="Stadtname">
         </div>
-        <input type="submit">
+        <input type="submit" onclick="">
     </form>
 
     <script>
@@ -178,7 +178,7 @@
             });
         }
 
-        /*An array containing all the country names in the world:*/
+        /*An array containing all city names in germany:*/
         var cities_dict = JSON.parse('{{cities|safe}}');
         var cities = Object.values(cities_dict);        
 

@@ -1,4 +1,5 @@
 # from crypt import methods
+from email.policy import default
 import numpy as np
 from scipy.spatial import distance
 from sklearn.cluster import DBSCAN
@@ -11,6 +12,7 @@ from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 from classes.incident import Incident
+from classes.stateinfo import Stateinfo
 import pandas as pd
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
@@ -27,26 +29,30 @@ def JsonBuilder(obj):
     return retValue
 
 @app.route('/', methods=['GET', 'POST'])
-def start_page(): 
+def start_page():
+    # Todo Replace with sql  
     df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
+    # stateinfos = Stateinfo.query.all()
+    # print(pd.read_sql(Stateinfo.query.all(), db.engine))  
     df['Name'] = df['Name'].str.replace(r"[\']", r"") 
     if request.method == 'POST':
-        value = request.form['input_city']
-        df_res = df.loc[df['Name'] == value]
-        land = df_res['Land'].iloc[0]
-        req = df_res['RB'].iloc[0]
-        kreis = df_res['Kreis'].iloc[0]
-        gem = df_res['Gem'].iloc[0]
-        return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem))
+        city_name = request.form['input_city']
+        df_res = df.loc[df['Name'] == city_name]
+        if not df_res.empty:    
+            land = df_res['Land'].iloc[0]
+            req = df_res['RB'].iloc[0]
+            kreis = df_res['Kreis'].iloc[0]
+            gem = df_res['Gem'].iloc[0]
+            return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem, city_name=city_name))
 
     df_dict = df['Name'].to_dict()
     cities = json.dumps(df_dict)
     return render_template('startpage.html', cities=cities) 
 
 
-@app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/')
-def incident(land,reg,kreis,gem):
-    print("string")
+@app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/', defaults={'city_name': None})
+@app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/<string:city_name>/')
+def incident(land,reg,kreis,gem, city_name):
     #region validate input
     if not(land == "*" or land.isnumeric()):
         return jsonify("Error: invalid expression in land")
@@ -112,7 +118,7 @@ def incident(land,reg,kreis,gem):
     df = np.array([YGCSWGS84,XGCSWGS84])
     dbscan(df,0.5,1)
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
-    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations)
+    return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations, city_name=city_name)
 
 def dbscan(X, eps, min_samples):
     db = DBSCAN(eps=eps, min_samples=min_samples)

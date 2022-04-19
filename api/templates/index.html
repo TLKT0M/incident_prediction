@@ -10,12 +10,12 @@
     <div>
         <p>
             Your Filters
+            Stadtname: {{city_name}},
             {%for filt in filtering %}
             {{filt}},
             {%endfor%}
         </p>
         <div id="osm-map"></div>
-        <!-- <img id="car-crash" hidden="true" src={{ url_for('static', filename='Icons/car-crash.svg') }}> -->
     </div>
     <table cellspacing="0" cellpadding="0">
         <tr>

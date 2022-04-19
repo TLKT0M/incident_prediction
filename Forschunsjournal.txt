@@ -1,0 +1,29 @@
+Woche 05.04.2022 bis 12.04.2022
+    - Data Preprocessing und Cleaning
+        - Einlesen des vorgegebenen Datensatzes und dessen Analyse
+        - Analyse der Datensätze von vorherigen Jahren und kritische Attribute finden und vermeiden
+        - Erstellung einer SQLite-Datenbank, um mehrmaliges Einlesen der Daten zu vermeiden
+        - Abänderung falscher Dateiformate in den Daten (Floats getrennt mit Komma anstatt mit Punkt)
+    - Aufsetzen einer REST-Api
+        - Erste Online API zur Abfrage und Analyse der Daten
+            - Länderkennung muss von Nutzer bekannt sein
+        - Durch Nutzung einer Api können weitere Javascript-Pakete oder HTML-Frameworks eingebunden, unabhängig von dem Betriebssystem
+        - Erstellung einer Tabelle zur Visualisierung der Daten 
+    - Informationsdarstellung
+        - Einbindung einer Karte von Open Street Map, um Orte der Unfälle zu zeigen
+        - Zur Darstellung der Marker auf der Karte wird das Javascript-Paket "Leaflet" genutzt
+        - Problematiken aufgrund der Änderungen des Datenformats in .json-Format und Syntax von Flask und Jinja
+
+Woche 12.04.2022 bis 19.04.2022
+    - Informationsdarstellung
+        - Einbindung von seperaten Icons für die Marker abhängig von der Art des Unfalls
+    - Erstellung Startseite für Interface
+        - Nutzer kann Stadtnamen eingeben
+        - Interpretation des Stadtnames und Übersetung in Nummer für Api durch Backend
+        - Weiterleitung zur Ergebnisseite 
+        - Bug aufgrund eines einzelnen Anführungszeichens in den Stadtdaten, das vor Umformatierung zu .json entfernt werden muss
+        - Fehler in den Regierungsbezirken behoben (Überflüssiges Exit)
+        - Bei falscher Eingabe der Stadt keine Abfrage an Api
+        - Datenbankbefehle zur Einbindung von Regierungsbezirken in Datenbank
+
+
