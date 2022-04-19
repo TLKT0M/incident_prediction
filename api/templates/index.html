@@ -3,7 +3,6 @@
 <title>Test1</title>
 {%endblock%}
 {% block body %}
-
 <div class="content">
     <h1>
         Unfälle
@@ -11,10 +10,12 @@
     <div>
         <p>
             Your Filters
-             {%for filt in filtering %}
-                {{filt}}, 
+            Stadtname: {{city_name}},
+            {%for filt in filtering %}
+            {{filt}},
             {%endfor%}
         </p>
+        <div id="osm-map"></div>
     </div>
     <table cellspacing="0" cellpadding="0">
         <tr>
@@ -39,7 +40,7 @@
             <th>YGCSWGS84</th>
             <th>Google Link</th>
         </tr>
-{% for incident in incidents%}
+        {% for incident in incidents%}
         <tr>
             <td>{{incident.ULAND}}</td>
             <td>{{incident.UREGBEZ}}</td>
@@ -60,9 +61,11 @@
             <td>{{incident.IstSonstige}}</td>
             <td>{{incident.XGCSWGS84}}</td>
             <td>{{incident.YGCSWGS84}}</td>
-            <td class="outergmbutton"><a class="gmbutton" href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google Maps</a></td>
+            <td class="outergmbutton"><a class="gmbutton"
+                    href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google
+                    Maps</a></td>
         </tr>
-{%endfor%}
+        {%endfor%}
         <tr class="sumline">
             <td></td>
             <td></td>
@@ -76,9 +79,9 @@
             <td></td>
             <td></td>
             <td></td>
-{%for stat in statList%}
-            <td>{{ stat}}%</td>
-{%endfor%}
+            {%for stat in statList%}
+            <td>{{stat}}%</td>
+            {%endfor%}
             <td></td>
             <td></td>
             <td></td>
@@ -86,4 +89,85 @@
         </tr>
     </table>
 </div>
+
+<script>
+    // Load different Icons
+    var carCrashIcon = L.icon({
+        iconUrl: 'https://www.svgrepo.com/show/93527/car-crash.svg',
+        iconSize: [30, 90],
+        popupAnchor: [-3, -76],
+    });
+
+    var bicycleCrashIcon = L.icon({
+        iconUrl: 'https://www.svgrepo.com/show/157502/bycicle.svg',
+        iconSize: [20, 60],
+        popupAnchor: [-3, -76],
+    });
+
+    var personCrashIcon = L.icon({
+        iconUrl: 'https://www.svgrepo.com/show/14756/person-silhouette.svg',
+        iconSize: [20, 60],
+        popupAnchor: [-3, -76],
+    })
+
+    var motorcycleCrashIcon = L.icon({
+        iconUrl: 'https://www.svgrepo.com/show/137787/motorcycle.svg',
+        iconSize: [20, 60],
+        popupAnchor: [-3, -76],
+    })
+
+    // Where you want to render the map.
+    var element = document.getElementById('osm-map');
+
+    // Height has to be set. You can do this in CSS too.
+    element.style = 'height:300px;';
+
+    // Create Leaflet map on map element.
+    var map = L.map(element);
+
+    // Add OSM tile layer to the Leaflet map.
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var clusters = JSON.parse('{{clusters|safe}}')
+    for(i in clusters){ 
+        L.circle([clusters[i]['y'], clusters[i]['x']], {color: "red",
+          fillColor: "#f03",
+          fillOpacity: 0.5,
+          radius: (clusters[i]['count']*10)}).addTo(map);
+    }
+
+    // Target's GPS coordinates.
+    
+    var locations = JSON.parse('{{locations|safe}}')
+
+    for(i in locations){
+        // Create marker element for every crash in list
+        target = L.latLng(locations[i].YGCSWGS84, locations[i].XGCSWGS84);
+
+        // Determine which Icon to Use
+        var iconToUse = null;
+        if(locations[i].IstRad){
+            iconToUse = bicycleCrashIcon;
+        }else if(locations[i].IstPKW){
+            iconToUse = carCrashIcon;
+        }else if(locations[i].IstFuss){
+            iconToUse = personCrashIcon;
+        }else if(locations[i].IstKrad){
+            iconToUse = motorcycleCrashIcon;
+        }
+
+        // Place marker on location
+        L.marker(target, {icon: iconToUse}).addTo(map);
+        if(i == 200){
+            break;
+        }
+    }
+
+    
+    // Set map's center to target with zoom 12.
+    map.setView(target, 12);
+
+</script>
 {%endblock%}
