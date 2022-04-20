@@ -93,28 +93,29 @@
 <script>
     // Load different Icons
     var carCrashIcon = L.icon({
-        iconUrl: 'https://www.svgrepo.com/show/93527/car-crash.svg',
+        iconUrl: "{{ url_for('static', filename='Icons/car-crash.svg')}}",
         iconSize: [30, 90],
-        popupAnchor: [-3, -76],
+        popupAnchor: [-3, -10],
     });
 
     var bicycleCrashIcon = L.icon({
-        iconUrl: 'https://www.svgrepo.com/show/157502/bycicle.svg',
+        iconUrl: filename = "{{ url_for('static', filename='Icons/bycicle.svg')}}",
         iconSize: [20, 60],
         popupAnchor: [-3, -76],
     });
 
     var personCrashIcon = L.icon({
-        iconUrl: 'https://www.svgrepo.com/show/14756/person-silhouette.svg',
+        iconUrl: "{{ url_for('static', filename='Icons/person.svg')}}",
         iconSize: [20, 60],
-        popupAnchor: [-3, -76],
+        popupAnchor: [-3, -10],
     })
 
     var motorcycleCrashIcon = L.icon({
-        iconUrl: 'https://www.svgrepo.com/show/137787/motorcycle.svg',
+        iconUrl: "{{ url_for('static', filename='Icons/motorcycle.svg')}}",
         iconSize: [20, 60],
-        popupAnchor: [-3, -76],
+        popupAnchor: [-3, -10],
     })
+
 
     // Where you want to render the map.
     var element = document.getElementById('osm-map');
@@ -131,43 +132,53 @@
     }).addTo(map);
 
     var clusters = JSON.parse('{{clusters|safe}}')
-    for(i in clusters){ 
-        L.circle([clusters[i]['y'], clusters[i]['x']], {color: "red",
-          fillColor: "#f03",
-          fillOpacity: 0.5,
-          radius: (clusters[i]['count']*5)}).addTo(map);
+    for (i in clusters) {
+        L.circle([clusters[i]['y'], clusters[i]['x']], {
+            color: "red",
+            fillColor: "#f03",
+            fillOpacity: 0.5,
+            radius: (clusters[i]['count'] * 5)
+        }).addTo(map);
     }
 
     // Target's GPS coordinates.
+    var locations = JSON.parse('{{locations|safe}}');
     
-    var locations = JSON.parse('{{locations|safe}}')
-
-    for(i in locations){
+    for (i in locations) {
+        // Maximum 200 Markers for performance reasons
+        if(i == 200){
+            break;
+        }
         // Create marker element for every crash in list
         target = L.latLng(locations[i].YGCSWGS84, locations[i].XGCSWGS84);
 
         // Determine which Icon to Use
-        var iconToUse = null;
-        if(locations[i].IstRad){
-            iconToUse = bicycleCrashIcon;
-        }else if(locations[i].IstPKW){
-            iconToUse = carCrashIcon;
-        }else if(locations[i].IstFuss){
-            iconToUse = personCrashIcon;
-        }else if(locations[i].IstKrad){
-            iconToUse = motorcycleCrashIcon;
-        }
+        var iconToUse = determineIcon();
 
         // Place marker on location
-        L.marker(target, {icon: iconToUse}).addTo(map);
-        if(i == 200){
-            break;
-        }
+        var marker = L.marker(target, { icon: iconToUse }).addTo(map);
+        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p>';
+        marker.bindPopup(popUpContent);
     }
 
-    
     // Set map's center to target with zoom 12.
     map.setView(target, 12);
 
+
+    function determineIcon(){
+        var iconToUse = null;
+        if (locations[i].IstRad) {
+            iconToUse = bicycleCrashIcon;
+        } else if (locations[i].IstPKW) {
+            iconToUse = carCrashIcon;
+        } else if (locations[i].IstFuss) {
+            iconToUse = personCrashIcon;
+        } else if (locations[i].IstKrad) {
+            iconToUse = motorcycleCrashIcon;
+        }else{
+            iconToUse = carCrashIcon;
+        }
+        return iconToUse;
+    }
 </script>
 {%endblock%}

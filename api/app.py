@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 from classes.incident import Incident
 from classes.stateinfo import Stateinfo
+from classes.dataenums import Crashcase, Crashtype, Month
 import pandas as pd
 from clustering import get_clusters
 from classes.cluster import Cluster
@@ -20,7 +21,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
 
-def JsonBuilder(obj):
+def JsonBuilder(obj: Incident):
     retValue = {}
     retValue['XGCSWGS84'] = obj.XGCSWGS84
     retValue['YGCSWGS84'] = obj.YGCSWGS84
@@ -28,10 +29,11 @@ def JsonBuilder(obj):
     retValue['IstPKW'] = obj.IstPKW
     retValue['IstFuss'] = obj.IstFuss
     retValue['IstKrad'] = obj.IstKrad
+    retValue['UJAHR'] = obj.UJAHR
+    retValue['UMONAT'] = Month(int(obj.UMONAT)).label 
+    retValue['UART'] = Crashcase(int(obj.UART)).label
+    retValue['UTYP1'] = Crashtype(int(obj.UTYP1)).label
     return retValue
-
-
-
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
@@ -51,7 +53,6 @@ def start_page():
             return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem, city_name=city_name))
 
     df_dict = df['Name'].to_dict()
-    #print(df_dict)
     cities = json.dumps(df_dict)
     return render_template('startpage.html', cities=cities) 
 
@@ -96,6 +97,7 @@ def incident(land,reg,kreis,gem, city_name):
     cluster['count'] = clusters[['count']]
     clust = cluster.to_json(orient='records')
     print(clust)
+    # clust = {}
     locations = {}
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
@@ -129,7 +131,6 @@ def incident(land,reg,kreis,gem, city_name):
         XGCSWGS84.append(incident.XGCSWGS84)
         YGCSWGS84.append(incident.YGCSWGS84)
     df = np.array([YGCSWGS84,XGCSWGS84])
-    #print(locations)
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
     return render_template('index.html', incidents=incidents, count_all=count_all, statList=statList, filtering=filtering, locations=locations, clusters=clust, city_name=city_name)
 
