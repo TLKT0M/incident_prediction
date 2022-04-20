@@ -121,7 +121,7 @@
     var element = document.getElementById('osm-map');
 
     // Height has to be set. You can do this in CSS too.
-    element.style = 'height:300px;';
+    element.style = 'height:500px;';
 
     // Create Leaflet map on map element.
     var map = L.map(element);
@@ -157,7 +157,7 @@
 
         // Place marker on location
         var marker = L.marker(target, { icon: iconToUse }).addTo(map);
-        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p>';
+        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p><a href="http://127.0.0.1:5000/incidentdetail/'+locations[i].ID +'" >Mehr Sehen</a>';
         marker.bindPopup(popUpContent);
     }
 

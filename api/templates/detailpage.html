@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Test1</title>
+{%endblock%}
+{% block body %}
+
+<script>
+var locations = JSON.parse('{{locations|safe}}');
+
+for (i in locations) {
+        console.log(i);
+        <h1>TEST</h1>
+        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p><a href="http://127.0.0.1/incidentdetail/'+locations[i].ID +'" >Mehr Sehen</a>';
+        console.log(popUpContent);
+    }
+
+</script>
+{%endblock%}

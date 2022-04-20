@@ -33,7 +33,25 @@ def JsonBuilder(obj: Incident):
     retValue['UMONAT'] = Month(int(obj.UMONAT)).label 
     retValue['UART'] = Crashcase(int(obj.UART)).label
     retValue['UTYP1'] = Crashtype(int(obj.UTYP1)).label
+    retValue['ID'] = obj.ID
     return retValue
+
+
+
+@app.route('/incidentdetail/<int:id>')
+def incidentdetails(id):
+    print(id)
+    filters = " ID = " + str(id)
+    print(filters)
+    incidents = Incident.query.filter(text(filters)).all()
+    
+    locations = {}
+    for i in range(len(incidents)):
+        locations['{}'.format(i)] = JsonBuilder(incidents[i])
+    locations = json.dumps(locations)
+   
+    print(locations)
+    return render_template("detailpage.html", locations=locations)
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
