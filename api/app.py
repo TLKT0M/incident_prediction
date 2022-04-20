@@ -31,7 +31,8 @@ def JsonBuilder(obj):
     return retValue
 
 
-
+def get_data():
+    return pd.read_sql(Stateinfo.query.all(), db.engine)
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
