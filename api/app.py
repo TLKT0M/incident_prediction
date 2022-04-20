@@ -45,20 +45,19 @@ def incidentdetails(id):
     print(filters)
     incidents = Incident.query.filter(text(filters)).all()
     
-    locations = {}
-    for i in range(len(incidents)):
-        locations['{}'.format(i)] = JsonBuilder(incidents[i])
-    locations = json.dumps(locations)
+    #locations = {}
+    #for i in range(len(incidents)):
+    #    locations['{}'.format(i)] = JsonBuilder(incidents[i])
+    #locations = json.dumps(locations)
    
-    print(locations)
-    return render_template("detailpage.html", locations=locations)
+    #print(locations)
+    return render_template("detailpage.html", incidents=incidents)
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
-    # Todo Replace with sql  
+
     df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
-    # stateinfos = Stateinfo.query.all()
-    # print(pd.read_sql(Stateinfo.query.all(), db.engine))  
+
     df['Name'] = df['Name'].str.replace(r"[\']", r"") 
     if request.method == 'POST':
         city_name = request.form['input_city']
