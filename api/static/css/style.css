@@ -110,3 +110,13 @@ input[type=submit] {
     width: 100%;
    text-align: center;
 }
+#detail_table{
+    
+    width:50%;
+    margin-left: 25%;
+    margin-top: 5%;
+    font-size: 30px;
+}
+#detail_table td {
+
+}

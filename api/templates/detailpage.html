@@ -5,27 +5,68 @@
 {% block body %}
 <div>
     {% for incident in incidents%}
-    <table>
+    <table id="detail_table">
         <tr>
-            <th>
-                Informationen
+            <th colspan="2">
+                <h2>Unfall</h2>
             </th>
-            <th>
-                Test
-            </th>
+           
+        </tr>
+        <tr>
+            <td>Datum</td>
+                <td>
+                    {{incident.UMONAT}}.{{incident.UJAHR}}
+                </td>
         </tr>
         <tr>
             <td>Radfahrer involviert</td>
             {% if incident.IstRad == 1 %}
                 <td>
-                    Nein
+                    Ja
                 </td>
            {% else %}
                 <td>
-                    Ja
+                    Nein
                 </td>
            {% endif %}
         </tr>
+        <tr>
+            <td>PKW involviert</td>
+            {% if incident.IstPKW == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>Fußgänger involviert</td>
+            {% if incident.IstFuss == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>Motorrad involviert</td>
+            {% if incident.IstKrad == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+      
 
     </table>
     {% endfor %}
