@@ -1,6 +1,7 @@
 {% extends 'base.html'%}
 {% block head %}
-<title>Test1</title>
+<title>Unfallatlas</title>
+<link rel = 'icon' href="https://www.uni-siegen.de/presse/relaunch/downloads/cd/uni-siegen_farbig_150x150_rgb.jpg?lang=de" type="imgae/x-icon"/>
 {%endblock%}
 {% block body %}
 <div class="content">
@@ -157,7 +158,7 @@
 
         // Place marker on location
         var marker = L.marker(target, { icon: iconToUse }).addTo(map);
-        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p><a href="http://127.0.0.1:5000/incidentdetail/'+locations[i].ID +'" >Mehr Sehen</a>';
+        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p><a href="http://127.0.0.1:5000/incidentdetail/'+locations[i].ID +'/' + '{{city_name}}' +'" >Mehr Sehen</a>';
         marker.bindPopup(popUpContent);
     }
 

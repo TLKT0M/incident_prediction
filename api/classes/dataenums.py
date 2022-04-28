@@ -54,5 +54,20 @@ class Month(int, Enum):
     TYPE11 = (11, 'November')
     TYPE12 = (12, 'Dezember')
 
+class Weekday(int, Enum):
+    def __new__(cls, value, label):
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.label = label
+        return obj
+    
+    TYPE1 = (1, 'Sonntag')
+    TYPE2 = (2, 'Dienstag')
+    TYPE3 = (3, 'Mittwoch')
+    TYPE4 = (4, 'Donnerstag')
+    TYPE5 = (5, 'Freitag')
+    TYPE6 = (6, 'Samstag')
+    TYPE7 = (7, 'Sonntag')
+
 if __name__ == "__main__":
     print(Crashtype.TYPE1.label)

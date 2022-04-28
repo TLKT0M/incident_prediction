@@ -13,7 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 from classes.incident import Incident
 from classes.stateinfo import Stateinfo
-from classes.dataenums import Crashcase, Crashtype, Month
+from classes.dataenums import Crashcase, Crashtype, Month, Weekday
 import pandas as pd
 from clustering import get_clusters
 from classes.cluster import Cluster
@@ -38,19 +38,20 @@ def JsonBuilder(obj: Incident):
 
 
 
-@app.route('/incidentdetail/<int:id>')
-def incidentdetails(id):
-    print(id)
+@app.route('/incidentdetail/<int:id>/<string:city_name>/', methods=['GET','POST'])
+def incidentdetails(id, city_name):
     filters = " ID = " + str(id)
-    print(filters)
     incidents = Incident.query.filter(text(filters)).all()
+
+    if request.method == 'POST':
+        return redirect(url_for('incident', land=incidents[0].ULAND, reg=incidents[0].UREGBEZ, kreis=incidents[0].UKREIS, gem=incidents[0].UGEMEINDE, city_name=city_name))
+
+    for i in range(len(incidents)):
+        incidents[i].UMONAT = Month(incidents[i].UMONAT).label
+        incidents[i].UART = Crashcase(incidents[i].UART).label
+        incidents[i].UTYP1 = Crashtype(incidents[i].UTYP1).label
+        incidents[i].UWOCHENTAG = Weekday(incidents[i].UWOCHENTAG).label
     
-    #locations = {}
-    #for i in range(len(incidents)):
-    #    locations['{}'.format(i)] = JsonBuilder(incidents[i])
-    #locations = json.dumps(locations)
-   
-    #print(locations)
     return render_template("detailpage.html", incidents=incidents)
 
 @app.route('/', methods=['GET', 'POST'])
@@ -104,17 +105,17 @@ def incident(land,reg,kreis,gem, city_name):
         filterst += fil + " and "  
     filterst = filterst[:-4]
     #endregion
-    print(filterst)
     incidents = Incident.query.filter(text(filterst)).all()
     
-    clusters = get_clusters(filterst)
-    cluster = pd.DataFrame(clusters, columns=['x','y','count'])
-    cluster['x'] = clusters[['XGCSWGS84_agg']]
-    cluster['y'] = clusters[['YGCSWGS84_agg']]
-    cluster['count'] = clusters[['count']]
-    clust = cluster.to_json(orient='records')
-    print(clust)
-    # clust = {}
+    # clusters = get_clusters(filterst) 
+    # cluster = pd.DataFrame(clusters, columns=['x','y','count']) 
+    # cluster['x'] = clusters[['XGCSWGS84_agg']]
+    # cluster['y'] = clusters[['YGCSWGS84_agg']]
+    # cluster['count'] = clusters[['count']]
+    # clust = cluster.to_json(orient='records')
+    
+    # print(clust)
+    clust = {}
     locations = {}
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
