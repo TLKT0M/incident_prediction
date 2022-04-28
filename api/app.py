@@ -106,20 +106,16 @@ def incident(land,reg,kreis,gem, city_name):
     filterst = filterst[:-4]
     #endregion
     incidents = Incident.query.filter(text(filterst)).all()
-    
-    # clusters = get_clusters(filterst) 
-    # cluster = pd.DataFrame(clusters, columns=['x','y','count']) 
-    # cluster['x'] = clusters[['XGCSWGS84_agg']]
-    # cluster['y'] = clusters[['YGCSWGS84_agg']]
-    # cluster['count'] = clusters[['count']]
-    # clust = cluster.to_json(orient='records')
-    
-    # print(clust)
-    clust = {}
-    locations = {}
+     
+    clusters = get_clusters(filterst) 
+    clusters.columns = clusters.columns.droplevel()
+    clusters.columns = ['x', 'y', 'count'] 
+    clust = clusters.to_json(orient='records')
+
+    locations = {} 
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
-    locations = json.dumps(locations)
+    locations = json.dumps(locations) 
     #print(locations)
     #region do stats
     
@@ -144,9 +140,9 @@ def incident(land,reg,kreis,gem, city_name):
     
     #endregion
     XGCSWGS84 =[]
-    YGCSWGS84 =[]
+    YGCSWGS84 =[] 
     for incident in incidents:
-        XGCSWGS84.append(incident.XGCSWGS84)
+        XGCSWGS84.append(incident.XGCSWGS84) 
         YGCSWGS84.append(incident.YGCSWGS84)
     df = np.array([YGCSWGS84,XGCSWGS84])
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]

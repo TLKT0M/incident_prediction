@@ -91,7 +91,20 @@
     </table>
 </div>
 
+<style>
+    .leaflet-tooltip-pane .text {
+    color: black; 
+    font-weight: bold;
+    background: transparent;
+    border:0;
+    box-shadow: none;
+    font-size:2em;
+    }
+</style>
+
 <script>
+
+    var map = null;
     // Load different Icons
     var carCrashIcon = L.icon({
         iconUrl: "{{ url_for('static', filename='Icons/car-crash.svg')}}",
@@ -125,7 +138,7 @@
     element.style = 'height:500px;';
 
     // Create Leaflet map on map element.
-    var map = L.map(element);
+    map = L.map(element);
 
     // Add OSM tile layer to the Leaflet map.
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -134,12 +147,19 @@
 
     var clusters = JSON.parse('{{clusters|safe}}')
     for (i in clusters) {
+        var text = L.tooltip({
+        permanent: true,
+        direction: 'center',
+        className: 'text'
+        })
+        .setContent("" + clusters[i]['count']);
+
         L.circle([clusters[i]['y'], clusters[i]['x']], {
             color: "red",
             fillColor: "#f03",
             fillOpacity: 0.5,
             radius: (clusters[i]['count'] * 5)
-        }).addTo(map);
+        }).bindTooltip(text).addTo(map);
     }
 
     // Target's GPS coordinates.
