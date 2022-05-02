@@ -33,7 +33,11 @@
     // If the list is still open, first element will replace input value at submit
     function bestMatchCity() {
         var list = document.getElementById('myInputautocomplete-list');
+        
         var firstMatch = list.firstChild;
+        if (firstMatch === null){
+            return;
+        }
         var value = firstMatch.lastChild.value;
 
         var input = document.getElementById('myInput');
