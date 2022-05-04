@@ -1,9 +1,6 @@
 # from crypt import methods
 from email.policy import default
 import numpy as np
-from scipy.spatial import distance
-from sklearn.cluster import DBSCAN
-from matplotlib import pyplot as plt
 from distutils.log import debug
 from get_data import get_main_Df
 import json
@@ -56,7 +53,6 @@ def incidentdetails(id, city_name):
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
-
     df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
 
     df['Name'] = df['Name'].str.replace(r"[\']", r"") 
@@ -116,7 +112,6 @@ def incident(land,reg,kreis,gem, city_name):
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
     locations = json.dumps(locations) 
-    #print(locations)
     #region do stats
     
     count_all = len(incidents)
@@ -150,6 +145,4 @@ def incident(land,reg,kreis,gem, city_name):
 
 
 if __name__ == "__main__":
-  
     app.run(debug=True)
-     
