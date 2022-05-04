@@ -33,26 +33,30 @@ Woche 12.04.2022 bis 19.04.2022
         - Gruppieren der Cluster und Finden des Mittelpunkts
         - Übergabe der Werte 
         - Integration der Cluster Mittelpunkte in die Karte und größenbasiertes anzeigen
-    Woche 19.04.2022 bis 26.04.2022
-        - Karte
-            - Fehler durch das Laden der Icons
-            - Icons werden lokal gespeichert und geladen
-            - Default Icon wenn kein Icon geladen werden kann
-            - Informationen bei Klick auf den Marker
-                - Darstellung der Informationen des Unfalls beim Klick auf das Icon
-                - Enum-Klassen erstellen, um INT-Werte in zugehörige Strings umzuwandeln 
-                - Einfügen der Informationen in jedes Unfall-Icon
-    Woche 26.04.2022 bis 02.05.2022
-        - Unfallinformationen bei Markern
-            - Neue Informationen zu dem Unfall auf extra Seite, die durch Klick im Popup geöffnet werden kann
-            - Hinzufügen weiterer Enums
-        - Cluster
-            - Cluster werden jetzt auch unter Windows Systemen angezeigt
-            - Hinzufügen eines Tooltips zu jeden Cluster, um Größe der Cluster mit Zahl anzuzeigen
-            - Tooltips werden erst ab einer bestimmten Zoom-Größe angezeigt
-            - Schriftgröße ändert sich abhängig von dem Zoom-Level
-        - Allgemeine Fixes
-            - Beim Input der Stadt wird das erste Suchergebnis also Input genommen bei Klick auf Submit
-            - Zurück Knopf bei der detaillierten Beschreibung des Unfalls 
 
+Woche 19.04.2022 bis 26.04.2022
+    - Karte
+        - Fehler durch das Laden der Icons
+        - Icons werden lokal gespeichert und geladen
+        - Default Icon wenn kein Icon geladen werden kann
+        - Informationen bei Klick auf den Marker
+            - Darstellung der Informationen des Unfalls beim Klick auf das Icon
+            - Enum-Klassen erstellen, um INT-Werte in zugehörige Strings umzuwandeln 
+            - Einfügen der Informationen in jedes Unfall-Icon
+
+Woche 26.04.2022 bis 02.05.2022
+    - Unfallinformationen bei Markern
+        - Neue Informationen zu dem Unfall auf extra Seite, die durch Klick im Popup geöffnet werden kann
+        - Hinzufügen weiterer Enums
+    - Cluster
+        - Cluster werden jetzt auch unter Windows Systemen angezeigt
+        - Hinzufügen eines Tooltips zu jeden Cluster, um Größe der Cluster mit Zahl anzuzeigen
+        - Tooltips werden erst ab einer bestimmten Zoom-Größe angezeigt
+        - Schriftgröße ändert sich abhängig von dem Zoom-Level
+    - Allgemeine Fixes
+        - Beim Input der Stadt wird das erste Suchergebnis also Input genommen bei Klick auf Submit
+        - Zurück Knopf bei der detaillierten Beschreibung des Unfalls 
+
+Woche 03.05.2022 bis 09.05.2022:
+    
 
