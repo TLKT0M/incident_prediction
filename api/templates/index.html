@@ -170,9 +170,7 @@
 
     for (i in locations) {
         // Maximum 200 Markers for performance reasons
-        if (i == 200) {
-            break;
-        }
+      
         // Create marker element for every crash in list
         target = L.latLng(locations[i].YGCSWGS84, locations[i].XGCSWGS84);
 

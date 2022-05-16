@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class Crashcase(int, Enum):
     def __new__(cls, value, label):
         obj = int.__new__(cls, value)
