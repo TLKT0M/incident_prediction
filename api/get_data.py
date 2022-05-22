@@ -58,5 +58,7 @@ def import_vehicleinfo_to_db(df):
         db.session.add(new_vehicleinfo)
         db.session.commit()
 
+
+
 if __name__ == "__main__":
         import_vehicleinfo_to_db(get_vehicle_information())
