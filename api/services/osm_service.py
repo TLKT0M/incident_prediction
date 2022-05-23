@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 
-
+#get_node_info("51.313933989000077","7.677151576000028")
 def get_node_info(long,lat):
     para= 0.0001
     maxspeed = None #https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
@@ -50,8 +50,3 @@ def get_node_info(long,lat):
         raise Exception(response.status_code)
     return name,maxspeed,cycleway,footway,lit,overtaking,surface
 
-
-
-if __name__ == "__main__":
-    speed = get_node_info("51.313933989000077","7.677151576000028")
-    print(speed)

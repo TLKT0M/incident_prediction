@@ -36,5 +36,5 @@ def get_hist_weather(x,y,date,time):
         return None
 
 
-if __name__ == "__main__":
-    print(get_hist_weather("10.621659329","50.7296148","01-03-2016","17:00:00"))
+#if __name__ == "__main__":
+#    print(get_hist_weather("10.621659329","50.7296148","01-03-2016","17:00:00"))
