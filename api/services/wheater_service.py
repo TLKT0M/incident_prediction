@@ -18,4 +18,4 @@ def get_weather(long,lat,date, acc_hour):
 
 
 if __name__ == "__main__":
-    get_weather("10.621659329","53.7296148","01-03-2016","01:00:00")
+    get_weather("10.621659329","53.7296148","01-03-2016","01:00:00")#meteostat
