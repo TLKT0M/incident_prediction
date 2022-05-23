@@ -3,7 +3,7 @@ import sqlite3
 import numpy as np
 from sklearn.cluster import DBSCAN
 import pandas as pd
-from sklearn.cluster import DBSCAN
+ 
 
 def get_clusters(filters):
     # creating file path

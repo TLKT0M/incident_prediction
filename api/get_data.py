@@ -25,6 +25,7 @@ def get_main_Df():
         lastdf = df
     new_df = pd.concat(dfs)
     new_df.replace(',','.')
+    print(new_df.shape)
     return new_df
 
 def get_location_information():
