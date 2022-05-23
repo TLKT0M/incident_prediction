@@ -1,4 +1,5 @@
 # from crypt import methods
+from audioop import add
 from email.policy import default
 import numpy as np
 from distutils.log import debug
@@ -7,13 +8,16 @@ import json
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
 from classes.incident import Incident
+from classes.prediction import Prediction
 from classes.stateinfo import Stateinfo
 from classes.dataenums import Crashcase, Crashtype, Month, Weekday
 import pandas as pd
 from clustering import get_clusters
 from classes.cluster import Cluster
+from services.wheater_service import get_weather
+from services.osm_service import get_node_info
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
@@ -33,7 +37,26 @@ def JsonBuilder(obj: Incident):
     retValue['ID'] = obj.ID
     return retValue
 
+@app.route('/pred/',methods=['GET', 'POST'])
+def pred_interface():
+    if request.method == 'POST':
+        print(request.form)
+        return redirect(url_for('prediction',lat=request.form['lat'],long=request.form['long'], additionals=request.form['additionals']))
+    return render_template("predform.html")
 
+@app.route('/prediction/<string:lat>/<string:long>/<string:additionals>/', methods=['GET', 'POST'])
+def prediction(lat,long,additionals):
+    pred_class = Prediction()
+    pred_class.lat=lat
+    pred_class.additionals=additionals
+    pred_class.long=long
+    date = datetime.today().strftime('%d-%m-%Y')
+    dt_string = datetime.today().strftime('%d-%m-%Y') 
+    weather_dataset = get_weather(long=long,lat=lat,date=dt_string,acc_hour=datetime.now().strftime("%H:%M:%S"))
+    print(weather_dataset)
+    street= get_node_info(long=long,lat=lat)
+    
+    return render_template("predpage.html",predictions=[pred_class],weather=weather_dataset, street=street)
 
 @app.route('/incidentdetail/<int:id>/<string:city_name>/', methods=['GET','POST'])
 def incidentdetails(id, city_name):
