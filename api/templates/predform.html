@@ -1,0 +1,34 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Startseite</title>
+<link rel='icon' href="https://www.uni-siegen.de/presse/relaunch/downloads/cd/uni-siegen_farbig_150x150_rgb.jpg?lang=de"
+    type="imgae/x-icon" />
+{% endblock %}
+
+
+
+
+{% block body %}
+<div class="content">
+    <div id="top_header">
+        <h1>Eine Stadt/Gemeinde suchen:</h1>
+    </div>
+
+
+    <div id="search_div">
+
+        <form autocomplete="off" method="post">
+            <div class="autocomplete" style="width:300px;">
+
+                <input type="text" name="long" id="long" class="predinput" placeholder="Longitude" value="8.025583264000034">
+                <input type="text" name="lat" id="lat" class="predinput" placeholder="Latitude" value="50.888834908000035">
+                <input type="text" name="additionals" id="additionals" class="predinput" placeholder="additionals">
+                <input type="submit" value="Vorhersage" >
+
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+{% endblock %}

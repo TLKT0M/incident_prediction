@@ -1,0 +1,146 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Startseite</title>
+<link rel='icon' href="https://www.uni-siegen.de/presse/relaunch/downloads/cd/uni-siegen_farbig_150x150_rgb.jpg?lang=de"
+    type="imgae/x-icon" />
+{% endblock %}
+
+
+
+
+{% block body %}
+<div class="content">
+    <div id="top_header">
+        <h1>Eine Stadt/Gemeinde suchen:</h1>
+    </div>
+    <div><h2>Wetterinformationen</h2>
+    <table>
+        <tr>
+            <td>
+                Zeitpunkt
+            </td>
+            <td>
+                {{weather.datetime}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Temperatur
+            </td>
+            <td>
+                {{weather.temp}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Gefühlt
+            </td>
+            <td>
+                {{weather.feelslike}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Schnee
+            </td>
+            <td>
+                {{weather.snow}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Wolkenabdeckung
+            </td>
+            <td>
+                {{weather.cloudcover}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Sicht
+            </td>
+            <td>
+                {{weather.visibility}}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                UVIndex
+            </td>
+            <td>
+                {{weather.uvindex}}
+            </td>
+        </tr>
+
+    </table>
+    </div>
+    <div><h2>Straßeninformationen</h2>
+        <table>
+            <tr>
+                <td>
+                    Straßenname
+                </td>
+                <td>
+                    {{street.name}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Geschwindigeit
+                </td>
+                <td>
+                    {{street.speed}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Untergrund
+                </td>
+                <td>
+                    {{street.material}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Radweg
+                </td>
+                <td>
+                    {{street.cycleway}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Fußgänger
+                </td>
+                <td>
+                    {{street.footway}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Überholen erlaubt
+                </td>
+                <td>
+                    {{street.overtaking}}
+                </td>
+            </tr>
+     
+    
+        </table>
+        </div>
+    {% for predict in predictions%}
+    <div id="search_div">
+        <p>LAT:
+            {{predict.lat}}
+        </p>
+        <p>LONG:
+            {{predict.long}}
+        </p>
+        <p>additionals:
+            {{predict.additionals}}
+        </p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

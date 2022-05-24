@@ -25,6 +25,7 @@ def get_main_Df():
         lastdf = df
     new_df = pd.concat(dfs)
     new_df.replace(',','.')
+    print(new_df.shape)
     return new_df
 
 def get_location_information():
@@ -57,6 +58,8 @@ def import_vehicleinfo_to_db(df):
         new_vehicleinfo = Vehicleinfo(Key=row[1], KRADanzahl=row[2], KRADweibl=row[3], PKW=row[4], PKWproTausendEW=row[5], KFZinsgesamt=row[6], KFZproTausendEW=row[7])
         db.session.add(new_vehicleinfo)
         db.session.commit()
+
+
 
 if __name__ == "__main__":
         import_vehicleinfo_to_db(get_vehicle_information())
