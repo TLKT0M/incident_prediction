@@ -4,9 +4,6 @@
 {%endblock%}
 {% block body %}
 <div>
-    <form method="post">
-        <button>Zurück zur Karte</button>
-    </form>
     {% for incident in incidents%}
     <table id="detail_table">
         <tr>
@@ -20,10 +17,6 @@
                 <td>
                     {{incident.UMONAT}}.{{incident.UJAHR}}
                 </td>
-        </tr>
-        <tr>
-            <td>Wochentag</td>
-            <td>{{incident.UWOCHENTAG}}</td>
         </tr>
         <tr>
             <td>Radfahrer involviert</td>
@@ -72,14 +65,6 @@
                     Nein
                 </td>
            {% endif %}
-        </tr>
-        <tr>
-            <td>Unfallursache</td>
-            <td>{{incident.UART}}</td>
-        </tr>
-        <tr>
-            <td>Unfalltyp</td>
-            <td>{{incident.UTYP1}}</td>
         </tr>
       
 

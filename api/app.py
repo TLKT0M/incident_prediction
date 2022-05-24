@@ -1,22 +1,23 @@
 # from crypt import methods
+from audioop import add
 from email.policy import default
 import numpy as np
-from scipy.spatial import distance
-from sklearn.cluster import DBSCAN
-from matplotlib import pyplot as plt
 from distutils.log import debug
 from get_data import get_main_Df
 import json
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
 from classes.incident import Incident
+from classes.prediction import Prediction
 from classes.stateinfo import Stateinfo
-from classes.dataenums import Crashcase, Crashtype, Month
+from classes.dataenums import Crashcase, Crashtype, Month, Weekday
 import pandas as pd
 from clustering import get_clusters
 from classes.cluster import Cluster
+from services.wheater_service import get_weather
+from services.osm_service import get_node_info
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
@@ -36,26 +37,45 @@ def JsonBuilder(obj: Incident):
     retValue['ID'] = obj.ID
     return retValue
 
+@app.route('/pred/',methods=['GET', 'POST'])
+def pred_interface():
+    if request.method == 'POST':
+        print(request.form)
+        return redirect(url_for('prediction',lat=request.form['lat'],long=request.form['long'], additionals=request.form['additionals']))
+    return render_template("predform.html")
 
-
-@app.route('/incidentdetail/<int:id>')
-def incidentdetails(id):
-    print(id)
-    filters = " ID = " + str(id)
-    print(filters)
-    incidents = Incident.query.filter(text(filters)).all()
+@app.route('/prediction/<string:lat>/<string:long>/<string:additionals>/', methods=['GET', 'POST'])
+def prediction(lat,long,additionals):
+    pred_class = Prediction()
+    pred_class.lat=lat
+    pred_class.additionals=additionals
+    pred_class.long=long
+    date = datetime.today().strftime('%d-%m-%Y')
+    dt_string = datetime.today().strftime('%d-%m-%Y') 
+    weather_dataset = get_weather(long=long,lat=lat,date=dt_string,acc_hour=datetime.now().strftime("%H:%M:%S"))
+    print(weather_dataset)
+    street= get_node_info(long=long,lat=lat)
     
-    #locations = {}
-    #for i in range(len(incidents)):
-    #    locations['{}'.format(i)] = JsonBuilder(incidents[i])
-    #locations = json.dumps(locations)
-   
-    #print(locations)
+    return render_template("predpage.html",predictions=[pred_class],weather=weather_dataset, street=street)
+
+@app.route('/incidentdetail/<int:id>/<string:city_name>/', methods=['GET','POST'])
+def incidentdetails(id, city_name):
+    filters = " ID = " + str(id)
+    incidents = Incident.query.filter(text(filters)).all()
+
+    if request.method == 'POST':
+        return redirect(url_for('incident', land=incidents[0].ULAND, reg=incidents[0].UREGBEZ, kreis=incidents[0].UKREIS, gem=incidents[0].UGEMEINDE, city_name=city_name))
+
+    for i in range(len(incidents)):
+        incidents[i].UMONAT = Month(incidents[i].UMONAT).label
+        incidents[i].UART = Crashcase(incidents[i].UART).label
+        incidents[i].UTYP1 = Crashtype(incidents[i].UTYP1).label
+        incidents[i].UWOCHENTAG = Weekday(incidents[i].UWOCHENTAG).label
+    
     return render_template("detailpage.html", incidents=incidents)
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
-
     df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
 
     df['Name'] = df['Name'].str.replace(r"[\']", r"") 
@@ -104,22 +124,17 @@ def incident(land,reg,kreis,gem, city_name):
         filterst += fil + " and "  
     filterst = filterst[:-4]
     #endregion
-    print(filterst)
     incidents = Incident.query.filter(text(filterst)).all()
-    
-    clusters = get_clusters(filterst)
-    cluster = pd.DataFrame(clusters, columns=['x','y','count'])
-    cluster['x'] = clusters[['XGCSWGS84_agg']]
-    cluster['y'] = clusters[['YGCSWGS84_agg']]
-    cluster['count'] = clusters[['count']]
-    clust = cluster.to_json(orient='records')
-    print(clust)
-    # clust = {}
-    locations = {}
+     
+    clusters = get_clusters(filterst) 
+    clusters.columns = clusters.columns.droplevel()
+    clusters.columns = ['x', 'y', 'count'] 
+    clust = clusters.to_json(orient='records')
+
+    locations = {} 
     for i in range(len(incidents)):
         locations['{}'.format(i)] = JsonBuilder(incidents[i])
-    locations = json.dumps(locations)
-    #print(locations)
+    locations = json.dumps(locations) 
     #region do stats
     
     count_all = len(incidents)
@@ -143,9 +158,9 @@ def incident(land,reg,kreis,gem, city_name):
     
     #endregion
     XGCSWGS84 =[]
-    YGCSWGS84 =[]
+    YGCSWGS84 =[] 
     for incident in incidents:
-        XGCSWGS84.append(incident.XGCSWGS84)
+        XGCSWGS84.append(incident.XGCSWGS84) 
         YGCSWGS84.append(incident.YGCSWGS84)
     df = np.array([YGCSWGS84,XGCSWGS84])
     filtering = ["Land: "+land,"Regierung: "+reg,"Kreis: "+kreis,"Gemeinde: "+gem]
@@ -153,6 +168,4 @@ def incident(land,reg,kreis,gem, city_name):
 
 
 if __name__ == "__main__":
-  
     app.run(debug=True)
-     

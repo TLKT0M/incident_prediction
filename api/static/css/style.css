@@ -51,7 +51,6 @@ p {
 }
 
 
-
 /*the container must be positioned relative:*/
 .autocomplete {
     position: relative;
@@ -111,12 +110,16 @@ input[type=submit] {
    text-align: center;
 }
 #detail_table{
-    
     width:50%;
     margin-left: 25%;
     margin-top: 5%;
     font-size: 30px;
 }
-#detail_table td {
 
-}
+
+/*
+<input type="text" name="long" id="long" class="predinput">
+            <input type="text" name="lat" id="lat" class="predinput">
+            <input type="text" name="Weitere" id="Weitere" class="predinput">
+            <input type="submit" value="Vorhersage" style="border: 10px red;">
+            */
