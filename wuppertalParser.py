@@ -28,7 +28,40 @@ def getSchools():
 
     return idList
 
-def ray_tracing_method(x:float,y:float , poly:list):
+def getBicycleWay():
+    with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Radwege_EPSG4326_JSON.json") as url:
+        data = json.loads(url.read().decode())
+    idList = {}
+    for i in range(len(data['features'])):
+        id = data['features'][i]['properties']['STR_NR']
+        coordinates = data['features'][i]['geometry']['coordinates']
+        lighted = data['features'][i]['properties']['BELEUCHT']
+
+        temp = []
+        for i in coordinates:
+            if i[2] != 0:
+                del i[-1]
+                temp.append(i)
+        coordinates = temp
+        idList[id] = [lighted, coordinates]
+    return idList
+
+def getOneWay():
+    with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Einbahnstrassen_EPSG4326_JSON.json") as url:
+        data = json.loads(url.read().decode())
+    idList = {}
+    for i in range(len(data['features'])):
+        id = data['features'][i]['properties']['STR_NR']
+        coordinates = data['features'][i]['geometry']['coordinates']
+        name = data['features'][i]['properties']['STR_NAME']
+        bicyleFree = data['features'][i]['properties']['RAD_FREI']
+
+        for i in coordinates:
+            del i[-1]
+        idList[id] = [name, coordinates, bicyleFree]
+    return idList    
+
+def ray_tracing_method(x:float, y:float ,poly:list):
     n = len(poly)
     inside = False
 
@@ -47,8 +80,8 @@ def ray_tracing_method(x:float,y:float , poly:list):
     return inside
 
 if __name__ == '__main__':
-    test = get30Zones()
-
+    test = getOneWay()
+    print(test)
     # x = 7.20
     # y = 51.27476788705908
 
