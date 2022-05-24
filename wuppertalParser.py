@@ -1,5 +1,15 @@
+from os import defpath
 import urllib.request, json 
 import numpy as np
+import pandas as pd
+from sqlalchemy import text
+from flask_sqlalchemy import SQLAlchemy
+from api.classes.incident import Incident
+from flask import Flask
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///api/data/test.db'
+db = SQLAlchemy(app)
 
 def get30Zones():
     with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Tempo30-Zonen_EPSG4326_JSON.json") as url:
@@ -80,11 +90,43 @@ def ray_tracing_method(x:float, y:float ,poly:list):
     return inside
 
 if __name__ == '__main__':
-    test = getOneWay()
-    print(test)
-    # x = 7.20
-    # y = 51.27476788705908
+    slowZones = get30Zones()
+    schools = getSchools()
+    bicycleWay = getBicycleWay()
+    oneWay = getOneWay()
+    
+    x = 7.06338478300006 
+    y = 51.2309223930001
 
-    # for i in test:
-    #     print(i)
-    #     print(ray_tracing_method(x, y, test[i]))
+    df = pd.read_csv(("api/data/Regierungsbezirke.csv").replace('_', ''),delimiter=';')
+
+    df['Name'] = df['Name'].str.replace(r"[\']", r"") 
+    df_res = df.loc[df['Name'] == 'Wuppertal, Stadt']
+    if not df_res.empty:    
+        land = str(df_res['Land'].iloc[0])
+        reg = str(df_res['RB'].iloc[0])
+        kreis = str(df_res['Kreis'].iloc[0])
+        gem = str(df_res['Gem'].iloc[0])
+    
+        filterList= []
+        
+        filterList.append("ULAND=" + land)
+        
+        filterList.append("UREGBEZ=" + reg) 
+
+        filterList.append("UKREIS=" + kreis)
+
+        filterList.append("UGEMEINDE=" + gem)
+        filterst = ""
+        for fil in filterList:
+            filterst += fil + " and "  
+        filterst = filterst[:-4]
+      
+        incidents = Incident.query.filter(text(filterst)).all()
+        print(incidents)
+
+    # inSlowZone = False
+    # for i in slowZones:
+    #     if ray_tracing_method(x, y, slowZones[i]):
+    #         inSlowZone = True
+    # print(inSlowZone)
