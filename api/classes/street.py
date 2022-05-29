@@ -18,6 +18,6 @@ class Street(db.Model):
    
     
 
-    def __repr__(self):
-        return "Land"+ str(self.cloudcover)
+    # def __repr__(self):
+    #     return "Land"+ str(self.cloudcover)
 

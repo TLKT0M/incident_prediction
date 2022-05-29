@@ -60,3 +60,7 @@ Woche 26.04.2022 bis 02.05.2022
 Woche 03.05.2022 bis 09.05.2022:
     
 
+    - Wuppertal Daten
+        - Einlesen der verschiedenen Datensätzen aus dem .json Format
+        - Lösen des Point-in-Polygon (PIP) Problems um Unfälle in Zonen zu finden
+        

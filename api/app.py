@@ -1,9 +1,5 @@
 # from crypt import methods
-from audioop import add
-from email.policy import default
 import numpy as np
-from distutils.log import debug
-from get_data import get_main_Df
 import json
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
