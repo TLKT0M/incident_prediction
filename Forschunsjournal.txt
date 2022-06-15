@@ -63,4 +63,8 @@ Woche 03.05.2022 bis 09.05.2022:
     - Wuppertal Daten
         - Einlesen der verschiedenen Datensätzen aus dem .json Format
         - Lösen des Point-in-Polygon (PIP) Problems um Unfälle in Zonen zu finden
+    - Wetterdaten für Wuppertal
+        - Problem: Der Tag des Unfalls ist nicht bekannt
+            - Aber Jahr, Monat, Wochentag und Uhrzeit gegeben
+            - Daher Wetter für alle Tage 
         

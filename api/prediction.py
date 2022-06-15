@@ -32,7 +32,7 @@ df['hhhh'] = df['dddd'].apply()lambda x: ""wert if "wert in str(x) else x")
 
 """
 
-def explode(df,cols):
+def explode(df, cols):
    row_count = len(df)
    new_cols = []
    for col in cols:
@@ -57,18 +57,18 @@ if __name__ == "__main__":
    new_df = explode(new_df, ['ULICHTVERH','UART', 'UWOCHENTAG'])
    new_df = new_df.drop(['ULICHTVERH', 'UWOCHENTAG', 'UART'], axis=1)
    y = new_df[['UKATEGORIE']].to_numpy()
-   real_y = y[10001]
+   real_y = y[1000:11000]
    y = y[0:10000]
    
    new_df = new_df.drop(['UKATEGORIE'], axis=1)
    x = new_df.to_numpy()
-   real_x = x[10001]
+   real_x = x[10001:11000]
    x = x[0:10000]
    
 
    model = Sequential()
    model.add(Dense(12, input_dim=19, activation='relu'))
-   model.add(Dense(19, activation='relu'))
+   model.add(Dense(100, activation='relu'))
    model.add(Dense(1, activation='sigmoid'))
    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
    model.fit(x, y, epochs=15, batch_size=10)

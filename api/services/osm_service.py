@@ -1,16 +1,15 @@
-
 import requests
-from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 from classes.street import Street
-#get_node_info("51.313933989000077","7.677151576000028")
-def get_node_info(lat,long):
+import time
+
+def get_node_info(lat, long):
     para= 0.0001
     maxspeed = None #https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
     cycleway = None #https://wiki.openstreetmap.org/wiki/DE:Key:cycleway
     footway = None #https://wiki.openstreetmap.org/wiki/Key:foot
     lit = None #https://wiki.openstreetmap.org/wiki/DE:Key:lit
-    name = None # https://wiki.openstreetmap.org/wiki/DE:Key:name
+    name = None #https://wiki.openstreetmap.org/wiki/DE:Key:name
     overtaking = None #https://wiki.openstreetmap.org/wiki/Key:overtaking
     surface = None #https://wiki.openstreetmap.org/wiki/DE:Key:surface
     found= False
@@ -58,7 +57,13 @@ def get_node_info(lat,long):
                         found=True
                         street.surface = tag.attrib['v']
             
+        elif response.status_code == 429:
+            time.sleep(5)
+            get_node_info(lat, long)
+        elif response.status_code == 504:
+            time.sleep(3)
+            get_node_info(lat, long)
         else:
-            raise Exception(response.status_code)
+            raise Exception(response)
     return street
 
