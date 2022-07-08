@@ -1,21 +1,19 @@
-from msilib.schema import tables
-from operator import imod
-from os import defpath
-from traceback import print_tb
 import urllib.request
 import json
-import numpy as np
 import pandas as pd
 import sqlite3
 import calendar
 import datetime
 from datetime import date, datetime
 
-from regex import P
-from sqlalchemy import null
 from services.osm_service import get_node_info
 from services.historical_weather_service import get_hist_weather
 
+"""Parse json format and extract polygons with 30 Zones in Wuppertal
+
+Keyword arguments:
+Return: List of polygons for 30 Zones in Wuppertal
+"""
 
 def get30Zones():
     with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Tempo30-Zonen_EPSG4326_JSON.json") as url:
@@ -32,6 +30,12 @@ def get30Zones():
 
     return idList
 
+"""Parse json format and extract coordinates with schools in Wuppertal
+
+Keyword arguments:
+Return: List of coordinates and names for schools in Wuppertal
+"""
+
 def getSchools():
     with urllib.request.urlopen("https://daten.wuppertal.de/Soziales/Schulen_EPSG4326_JSON.json") as url:
         data = json.loads(url.read().decode())
@@ -43,6 +47,12 @@ def getSchools():
         idList[id] = [name, coordinates]
 
     return idList
+
+"""Parse json format and extract collection of points with bicycleways in Wuppertal
+
+Keyword arguments:
+Return: List of multiple coordinates for bicycle ways in Wuppertal
+"""
 
 def getBicycleWay():
     with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Radwege_EPSG4326_JSON.json") as url:
@@ -62,6 +72,12 @@ def getBicycleWay():
         idList[id] = [lighted, coordinates]
     return idList
 
+"""Parse json format and extract collection of points with One way Streets in Wuppertal
+
+Keyword arguments:
+Return: List of multiple coordinates for One Way Streets in Wuppertal
+"""
+
 def getOneWay():
     with urllib.request.urlopen("https://daten.wuppertal.de/Transport_Verkehr/Einbahnstrassen_EPSG4326_JSON.json") as url:
         data = json.loads(url.read().decode())
@@ -77,6 +93,14 @@ def getOneWay():
         idList[id] = [name, coordinates, bicyleFree]
     return idList
 
+"""Point in Polygon
+
+Keyword arguments:
+x -- Coordinats
+y -- Coordinates
+poly -- List of Coordinates which include a polygon
+Return: Returns if given point is a given polygon or not
+"""
 def ray_tracing_method(x: float, y: float, poly: list):
     n = len(poly)
     inside = False
@@ -95,6 +119,15 @@ def ray_tracing_method(x: float, y: float, poly: list):
 
     return inside
 
+"""Builds list with days for given weekday
+
+Keyword arguments:
+year -- Int for year
+month -- Int between 1 and 12
+weekday -- Int between 0 and 6
+Return: List of days which are in the year and month and have the given weekday
+"""
+
 def allWeekdaysInMonth(year: int, month: int, weekday: int) -> list:
     days = calendar.monthrange(year, month)[1]
     date_list = []
@@ -103,6 +136,13 @@ def allWeekdaysInMonth(year: int, month: int, weekday: int) -> list:
         if date_day.weekday() == weekday-1:
             date_list.append(date_day.day)
     return date_list
+
+"""Creates Weather Dataframe for given incidents from city
+
+Keyword arguments:
+table_list -- A list with needed attributes, like coordinates of every incident
+Return: A dataframe with weather data for every incident 
+"""
 
 def createWeatherDataframeWuppertal(table_list: list) -> pd.DataFrame: 
     df_weather_list = []
@@ -129,9 +169,16 @@ def createWeatherDataframeWuppertal(table_list: list) -> pd.DataFrame:
     df_weather = df_weather.round(decimals=2)
     return df_weather
 
+"""Creates OSM Dataframe for given incidents from city
+
+Keyword arguments:
+table_list -- A list with needed attributes, like coordinates of every incident
+Return: A dataframe with OSM data for every incident 
+"""
+
 def createStreetInfoDataframeWuppertal(table_list: list) -> pd.DataFrame:
     df_street_info_list = []
-    for incident in table_list[1000:]:
+    for incident in table_list:
         street_info = get_node_info(incident[1], incident[0])
         # Generate dict from object
         street_info_dict = street_info.__dict__
@@ -153,11 +200,17 @@ def createStreetInfoDataframeWuppertal(table_list: list) -> pd.DataFrame:
     df_street_info = df_street_info_list[0]
     for i in range(1, len(df_street_info_list)):
         df_street_info = df_street_info.append(df_street_info_list[i])
-    df_street_info.to_csv('test_3.csv')
+    df_street_info.to_csv('test_5.csv')
     return df_street_info
 
+"""Gets Incident Data and builds table_list for other functions
 
-if __name__ == '__main__':
+Keyword arguments:
+city_name -- Name of the city which data you want to get
+Return: List including: Coordinates, year, month, weekday, hour and id for every incident in the city
+"""
+
+def getData(city_name: str):
     slowZones = get30Zones()
     schools = getSchools()
     bicycleWay = getBicycleWay()
@@ -170,7 +223,7 @@ if __name__ == '__main__':
     # creating cursor
     cur = con.cursor()
     df = [a for a in cur.execute(
-        "SELECT Land, RB, Kreis, Gem FROM stateinfo WHERE Name = 'Wuppertal, Stadt'")]
+        "SELECT Land, RB, Kreis, Gem FROM stateinfo WHERE Name = ' " + city_name + " '")]
 
     land = str(df[0][0])
     reg = str(df[0][1])
@@ -188,14 +241,20 @@ if __name__ == '__main__':
         filterst += fil + " and "
     filterst = filterst[:-4]
 
-    # reading all table names for aplying filters
+    # reading all table names for applying filters
     table_list = [a for a in cur.execute("SELECT XGCSWGS84, YGCSWGS84, UJAHR, UMONAT, USTUNDE, UWOCHENTAG, ID FROM incident WHERE " + filterst)]
-    # df_weather = createWeatherDataframeWuppertal(table_list)
-    # df_weather.to_csv('weather_wuppertal.csv')
-    # street_info = createStreetInfoDataframeWuppertal(table_list)
-    #     # for i in table_list:
-        #     inSlowZone = False
-        #     for key in slowZones:
-        #         if ray_tracing_method(i[0], i[1], slowZones[key]):
-        #             inSlowZone = True
-        #     print(inSlowZone)
+    return table_list
+
+if __name__ == '__main__':
+    table_list = getData(city_name="Karlsruhe, Stadt")
+    df_weather = createWeatherDataframeWuppertal(table_list)
+    street_info = createStreetInfoDataframeWuppertal(table_list)
+    # for i in table_list:
+    #     inSlowZone = False
+    #     onBicyleWay = False
+    #     # for key in slowZones:
+    #     #     if ray_tracing_method(i[0], i[1], slowZones[key]):
+    #     #         inSlowZone = True
+        
+    #     for key in oneWay:
+    #         print(oneWay[key])

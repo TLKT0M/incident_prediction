@@ -3,6 +3,13 @@ import xml.etree.ElementTree as ET
 from classes.street import Street
 import time
 
+"""Extracts Street Info from Open Street Map API 
+
+Keyword arguments:
+lat -- float lat-coordinate
+long -- float long-coordinate
+Return: A street object with all extracted data
+"""
 def get_node_info(lat, long):
     para= 0.0001
     maxspeed = None #https://wiki.openstreetmap.org/wiki/DE:Key:maxspeed
@@ -58,10 +65,10 @@ def get_node_info(lat, long):
                         street.surface = tag.attrib['v']
             
         elif response.status_code == 429:
-            time.sleep(5)
+            time.sleep(3)
             get_node_info(lat, long)
         elif response.status_code == 504:
-            time.sleep(3)
+            time.sleep(1)
             get_node_info(lat, long)
         else:
             raise Exception(response)

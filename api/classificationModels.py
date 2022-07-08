@@ -1,12 +1,20 @@
 from regex import P
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
 import sqlite3
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 class classificationModels:
     X_train, X_test, y_train, y_test = [], [], [], []
+
+    accuracy_scores = {}
+
+    weather_data_name = 'weather_wuppertal.csv'
+    osm_data_name = 'OSM_data_wuppertal.csv'
 
     def __init__(self) -> None:
         self.preprocessData()
@@ -15,12 +23,19 @@ class classificationModels:
         # Load data and split
         df_osm = self.preprocessOSMData()
         df_weather = self.preprocessWeatherData()
+        try:
+            del df_weather['Unnamed: 0']
+        except KeyError:
+            print("Key not existing")
+        print(df_weather)
         df_merged = pd.merge(df_osm, df_weather, on=['incident_ID'])
         df_incident = self.prepeocessIncidentData()
+        # df_merged = df_incident
         # Combine Datapoints and remove ID uses for combination
         df_merged = pd.merge(df_merged, df_incident, on=['incident_ID'])
         df_merged.drop('incident_ID', axis=1, inplace=True)
-
+        print(df_merged['UKATEGORIE'].value_counts())
+        self.plotHeatMap(df_merged.corr())
         # Extract Y and X Values for Models
         y = df_merged['UKATEGORIE'].to_numpy()
         df_merged.drop('UKATEGORIE', axis=1, inplace=True)
@@ -31,6 +46,8 @@ class classificationModels:
         # print(df_osm['maxspeed'].unique()) # Find all values from column
         # print(df_merged['UKATEGORIE'].value_counts()) # How many of one value are in the data
 
+        
+
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, random_state=42)
 
@@ -38,14 +55,18 @@ class classificationModels:
         self.X_train = scaler.fit_transform(self.X_train)
         self.X_test = scaler.transform(self.X_test)
 
+        
+
     def preprocessOSMData(self) -> pd.DataFrame:
-        df_osm = pd.read_csv('api/data/OSM_data.csv')
+        df_osm = pd.read_csv('api/data/' + self.osm_data_name)
         df_osm = df_osm[df_osm['lit'].notna()]
         df_osm = df_osm[df_osm['maxspeed'].notna()]
         df_osm['surface'] = df_osm['surface'].fillna('asphalt')
         # Remove not interpretable data and fill rest
         df_osm = df_osm.loc[(df_osm['maxspeed'] != 'signals')
-                            & (df_osm['maxspeed'] != 'DE:urban')]
+                            & (df_osm['maxspeed'] != 'DE:urban')
+                            & (df_osm['maxspeed'] != 'DE:walk')
+                            & (df_osm['maxspeed'] != 'walk')]
         df_osm['maxspeed'].replace({'none': '200'}, inplace=True)
         df_osm.drop('name', axis=1, inplace=True)
         # Reorganize Dataframe
@@ -53,13 +74,15 @@ class classificationModels:
         df_osm = df_osm.reindex(columns=column_names)
         # Map Light Values
         df_osm['lit'] = df_osm['lit'].map({'yes': 1, 'no': 0})
+        df_osm = df_osm[df_osm['lit'].notna()]
+        df_osm['maxspeed'] = pd.to_numeric(df_osm['maxspeed'])
         # Change category attributes to bool values
         df_osm = self.explode(df_osm, ['surface'])
         df_osm.drop('surface', axis=1, inplace=True)
         return df_osm
 
     def preprocessWeatherData(self) -> pd.DataFrame:
-        df_weather = pd.read_csv('api/data/weather_wuppertal.csv')
+        df_weather = pd.read_csv('api/data/' + self.weather_data_name)
         df_weather = df_weather.fillna(0.0)
         return df_weather
 
@@ -71,6 +94,8 @@ class classificationModels:
         # creating cursor
         cur = con.cursor()
 
+        # Wuppertal 5, 1, 24, 0
+        # Karlsruhe 8, 2, 12, 0
         table_list = [a for a in cur.execute(
             "SELECT ID, UKATEGORIE, UART, UTYP1, ULICHTVERH, IstRad, IstPKW, IstFuss, IstKrad, IstSonstige FROM incident WHERE ULAND = '5' AND UREGBEZ = '1' AND UKREIS = '24' AND UGEMEINDE = '0'")]
         df_incident = pd.DataFrame(table_list)
@@ -82,70 +107,91 @@ class classificationModels:
 
     def logisticRegression(self):
         from sklearn.linear_model import LogisticRegression
-        logreg = LogisticRegression()
+        logreg = LogisticRegression(multi_class='multinomial')
         logreg.fit(self.X_train, self.y_train)
 
+        train = logreg.score(self.X_train, self.y_train)
+        test = logreg.score(self.X_test, self.y_test)
+        self.accuracy_scores['Logistic Regression'] = [train, test]
+
         print('Accuracy of Logistic regression classifier on training set: {:.2f}'
-              .format(logreg.score(self.X_train, self.y_train)))
+              .format(train))
         print('Accuracy of Logistic regression classifier on test set: {:.2f}'
-              .format(logreg.score(self.X_test, self.y_test)))
+              .format(test))
 
     def decisionTree(self):
         from sklearn.tree import DecisionTreeClassifier
         clf = DecisionTreeClassifier()
         clf.fit(self.X_train, self.y_train)
+        train = clf.score(self.X_train, self.y_train)
+        test = clf.score(self.X_test, self.y_test)
 
+        self.accuracy_scores['Decision Tree'] = [train, test]
         print('Accuracy of Decision Tree classifier on training set: {:.2f}'
-              .format(clf.score(self.X_train, self.y_train)))
+              .format(train))
         print('Accuracy of Decision Tree classifier on test set: {:.2f}'
-              .format(clf.score(self.X_test, self.y_test)))
+              .format(test))
 
     def k_Neraest(self):
         from sklearn.neighbors import KNeighborsClassifier
         knn = KNeighborsClassifier()
         knn.fit(self.X_train, self.y_train)
 
+        train = knn.score(self.X_train, self.y_train)
+        test = knn.score(self.X_test, self.y_test)
+        self.accuracy_scores['Nearest Neighbor'] = [train, test]
+
         print('Accuracy of K-NN classifier on training set: {:.2f}'
-              .format(knn.score(self.X_train, self.y_train)))
+              .format(train))
         print('Accuracy of K-NN classifier on test set: {:.2f}'
-              .format(knn.score(self.X_test, self.y_test)))
+              .format(test))
 
     def linearDiscriminatAnalysis(self):
         from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
         lda = LinearDiscriminantAnalysis()
         lda.fit(self.X_train, self.y_train)
 
-        print('Accuracy of LDA classifier on training set: {:.2f}'
-              .format(lda.score(self.X_train, self.y_train)))
-        print('Accuracy of LDA classifier on test set: {:.2f}'
-              .format(lda.score(self.X_test, self.y_test)))
+        train = lda.score(self.X_train, self.y_train)
+        test = lda.score(self.X_test, self.y_test)
+        self.accuracy_scores['LDA'] = [train, test]
 
-    def gaussianNaiveBayes(self):
-        from sklearn.naive_bayes import GaussianNB
-        gnb = GaussianNB()
-        gnb.fit(self.X_train, self.y_train)
+        print('Accuracy of LDA classifier on training set: {:.2f}'
+              .format(train))
+        print('Accuracy of LDA classifier on test set: {:.2f}'
+              .format(test))
+
+    def complementNaiveBayes(self):
+        from sklearn.naive_bayes import ComplementNB
+        cnb = ComplementNB()
+        cnb.fit(self.X_train, self.y_train)
+
+        train = cnb.score(self.X_train, self.y_train)
+        test = cnb.score(self.X_test, self.y_test)
+        self.accuracy_scores['Complement NB'] = [train, test]
 
         print('Accuracy of GNB classifier on training set: {:.2f}'
-              .format(gnb.score(self.X_train, self.y_train)))
+              .format(train))
         print('Accuracy of GNB classifier on test set: {:.2f}'
-              .format(gnb.score(self.X_test, self.y_test)))
+              .format(test))
 
     def supportVectorMachine(self):
         from sklearn.svm import SVC
         svm = SVC()
         svm.fit(self.X_train, self.y_train)
 
+        train = svm.score(self.X_train, self.y_train)
+        test = svm.score(self.X_test, self.y_test)
+        self.accuracy_scores['SVM'] = [train, test]
+
         print('Accuracy of SVM classifier on training set: {:.2f}'
-              .format(svm.score(self.X_train, self.y_train)))
+              .format(train))
         print('Accuracy of SVM classifier on test set: {:.2f}'
-              .format(svm.score(self.X_test, self.y_test)))
+              .format(test))
 
     def explode(self, df, cols):
-        row_count = len(df)
         new_cols = []
         for col in cols:
             unVals = df[col].value_counts()
-            # unVals = unVals[unVals.values > round(row_count*0.05)]
             for key in unVals.index:
                 name = str(col)+"_" + str(key)
                 new_cols.append([col, name, key])
@@ -154,6 +200,34 @@ class classificationModels:
             df[name] = np.where(df[col] == key, 1, 0)
         return df
 
+    def plotHeatMap(self, data):
+        sns.heatmap(data)
+        plt.show()
+
+    def plotAccuracy(self):
+        df = pd.DataFrame(self.accuracy_scores)
+        df['Genauigkeit der Modelle'] = ['Training', 'Testing']
+        df.set_index('Genauigkeit der Modelle', inplace=True)
+        df.plot(kind='bar')
+        plt.show()
+
+    def fixOSMDataKarlsruhe(self):
+        df_osm = pd.read_csv('api/data/OSM_data_karlsruhe.csv')
+        df_2 = df_osm.loc[500:3748]
+        df_3 = df_osm.loc[4249:]
+        
+        df_2['temp'] = df_2['surface']
+        df_2['surface'] = df_2['maxspeed']
+        df_2['maxspeed'] = df_2['temp']
+        del df_2['temp'], df_2['Unnamed: 0']
+        df_2.to_csv('test_2.csv')
+
+
+        df_3['temp'] = df_3['surface']
+        df_3['surface'] = df_3['maxspeed']
+        df_3['maxspeed'] = df_3['temp']
+        del df_3['temp'], df_3['Unnamed: 0']
+        df_3.to_csv('test_3.csv')
 
 if __name__ == '__main__':
     cm = classificationModels()
@@ -161,5 +235,6 @@ if __name__ == '__main__':
     cm.decisionTree()
     cm.k_Neraest()
     cm.linearDiscriminatAnalysis()
-    cm.gaussianNaiveBayes()
+    cm.complementNaiveBayes()
     cm.supportVectorMachine()
+    cm.plotAccuracy()
