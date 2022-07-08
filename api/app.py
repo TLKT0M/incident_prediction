@@ -7,17 +7,21 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from classes.incident import Incident
 from classes.prediction import Prediction
-from classes.stateinfo import Stateinfo
 from classes.dataenums import Crashcase, Crashtype, Month, Weekday
 import pandas as pd
 from clustering import get_clusters
-from classes.cluster import Cluster
 from services.wheater_service import get_weather
 from services.osm_service import get_node_info
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/test.db'
 db = SQLAlchemy(app)
 
+"""JSON Builder for Flask Jinjai interaction
+
+Keyword arguments:
+obj -- Incident obj
+Return: JSON like dict which can be passed by flask
+"""
 def JsonBuilder(obj: Incident):
     retValue = {}
     retValue['XGCSWGS84'] = obj.XGCSWGS84
@@ -33,12 +37,21 @@ def JsonBuilder(obj: Incident):
     retValue['ID'] = obj.ID
     return retValue
 
+"""sumary_line
+
+- Handles the Prediction Input Page 
+"""
+
 @app.route('/pred/',methods=['GET', 'POST'])
 def pred_interface():
     if request.method == 'POST':
         print(request.form)
+        # TODO Loed Model and predict value
         return redirect(url_for('prediction',lat=request.form['lat'],long=request.form['long'], additionals=request.form['additionals']))
     return render_template("predform.html")
+
+"""Finished Prediction side with additional information
+"""
 
 @app.route('/prediction/<string:lat>/<string:long>/<string:additionals>/', methods=['GET', 'POST'])
 def prediction(lat,long,additionals):
@@ -53,6 +66,9 @@ def prediction(lat,long,additionals):
     street= get_node_info(long=long,lat=lat)
     
     return render_template("predpage.html",predictions=[pred_class],weather=weather_dataset, street=street)
+
+"""Side for handling click to detail page from tooltip
+"""
 
 @app.route('/incidentdetail/<int:id>/<string:city_name>/', methods=['GET','POST'])
 def incidentdetails(id, city_name):
@@ -69,6 +85,10 @@ def incidentdetails(id, city_name):
         incidents[i].UWOCHENTAG = Weekday(incidents[i].UWOCHENTAG).label
     
     return render_template("detailpage.html", incidents=incidents)
+
+"""Handles input at the Start Page
+- If there is no valid input it will remain on the start page
+"""
 
 @app.route('/', methods=['GET', 'POST'])
 def start_page():
@@ -89,6 +109,8 @@ def start_page():
     cities = json.dumps(df_dict)
     return render_template('startpage.html', cities=cities) 
 
+"""Method for building map and table to visualize data
+"""
 
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/', defaults={'city_name': None})
 @app.route('/incident/<string:land>/<string:reg>/<string:kreis>/<string:gem>/<string:city_name>/')

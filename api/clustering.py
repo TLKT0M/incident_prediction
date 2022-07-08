@@ -4,6 +4,12 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 import pandas as pd
  
+"""Extract Clusters from data
+
+Keyword arguments:
+filters -- filter for finding right data in SQL 
+Return: Dataframe with all clusters in data
+"""
 
 def get_clusters(filters):
     # creating file path
@@ -18,11 +24,9 @@ def get_clusters(filters):
     table_list = [a for a in cur.execute("SELECT XGCSWGS84,YGCSWGS84 from incident Where " + filters)]
     # here is you table list
 
-
     df = np.array(table_list)
     df = pd.DataFrame(table_list, columns=['XGCSWGS84','YGCSWGS84'])
     
-
     dbscan=DBSCAN(eps=0.0005,min_samples=3)
     dbscan.fit(df[['XGCSWGS84','YGCSWGS84']])
     df['DBSCAN_labels']=dbscan.labels_ 

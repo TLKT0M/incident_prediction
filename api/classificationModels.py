@@ -19,6 +19,12 @@ class classificationModels:
     def __init__(self) -> None:
         self.preprocessData()
 
+    """Loads data from all sources and combines the data, scales and splits
+    
+    Keyword arguments:
+    Return: Bulding train and test set for model building and testing
+    """
+    
     def preprocessData(self) -> None:
         # Load data and split
         df_osm = self.preprocessOSMData()
@@ -27,15 +33,14 @@ class classificationModels:
             del df_weather['Unnamed: 0']
         except KeyError:
             print("Key not existing")
-        print(df_weather)
+    
         df_merged = pd.merge(df_osm, df_weather, on=['incident_ID'])
         df_incident = self.prepeocessIncidentData()
-        # df_merged = df_incident
+        df_merged = df_incident
         # Combine Datapoints and remove ID uses for combination
-        df_merged = pd.merge(df_merged, df_incident, on=['incident_ID'])
+        # df_merged = pd.merge(df_merged, df_incident, on=['incident_ID'])
         df_merged.drop('incident_ID', axis=1, inplace=True)
-        print(df_merged['UKATEGORIE'].value_counts())
-        self.plotHeatMap(df_merged.corr())
+        df_merged.corr()['UKATEGORIE'].to_csv('test.csv')
         # Extract Y and X Values for Models
         y = df_merged['UKATEGORIE'].to_numpy()
         df_merged.drop('UKATEGORIE', axis=1, inplace=True)
@@ -46,17 +51,21 @@ class classificationModels:
         # print(df_osm['maxspeed'].unique()) # Find all values from column
         # print(df_merged['UKATEGORIE'].value_counts()) # How many of one value are in the data
 
-        
-
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, random_state=42)
-
         scaler = MinMaxScaler()
         self.X_train = scaler.fit_transform(self.X_train)
         self.X_test = scaler.transform(self.X_test)
 
+    """Preprocess OSM Data
+    
+    - Loads OSM Dataframe from osm_data_name
+    - Deletes empty values from lit and maxspeed
+    - Removes not feasable data from maxspeed column
+    - Explodes categoric surafce attribute
+    Return: Dataframe with all problematic values removed or filled
+    """
         
-
     def preprocessOSMData(self) -> pd.DataFrame:
         df_osm = pd.read_csv('api/data/' + self.osm_data_name)
         df_osm = df_osm[df_osm['lit'].notna()]
@@ -81,11 +90,26 @@ class classificationModels:
         df_osm.drop('surface', axis=1, inplace=True)
         return df_osm
 
+    """Preprocess Weather Data
+    
+    - Loads Weather Dataframe from osm_data_name
+    - Fills missing values with 0
+    Return: Dataframe with all problematic values removed or filled
+    """
+    
     def preprocessWeatherData(self) -> pd.DataFrame:
         df_weather = pd.read_csv('api/data/' + self.weather_data_name)
         df_weather = df_weather.fillna(0.0)
         return df_weather
 
+    """Preprocess Incident Data
+    
+    - Gets data from SQL Database
+    - Renaming cloumns in dataframe
+    - Explode Categoric attributes like UTYP1 and ULICHTVERH
+    Return: Dataframe with all incident data
+    """
+    
     def prepeocessIncidentData(self) -> pd.DataFrame:
         # creating file path
         dbfile = 'api/data/test.db'
@@ -101,10 +125,17 @@ class classificationModels:
         df_incident = pd.DataFrame(table_list)
         df_incident = df_incident.rename({0: 'incident_ID', 1: 'UKATEGORIE', 2: 'UART', 3: 'UTYP1',
                                           4: 'ULICHTVERH', 5: 'IstRad', 6: 'IstPKW', 7: 'IstFuss', 8: 'IstKrad', 9: 'IstSonstige'}, axis=1)
-        df_incident = self.explode(df_incident, ['UTYP1', 'ULICHTVERH'])
-        df_incident.drop(['UTYP1', 'ULICHTVERH'], axis=1, inplace=True)
+        df_incident = self.explode(df_incident, ['UTYP1', 'ULICHTVERH', 'UART'])
+        df_incident.drop(['UTYP1', 'ULICHTVERH', 'UART'], axis=1, inplace=True)
         return df_incident
 
+    """All models
+    
+    - Training and testing different types of classification models
+    - Accuracy will be stored in accuracy_scores dict for later visualization
+    Return: return_description
+    """
+    
     def logisticRegression(self):
         from sklearn.linear_model import LogisticRegression
         logreg = LogisticRegression(multi_class='multinomial')
@@ -188,6 +219,14 @@ class classificationModels:
         print('Accuracy of SVM classifier on test set: {:.2f}'
               .format(test))
 
+    """Takes original dataframe and explodes given cloumns horizontal
+    
+    Keyword arguments:
+    df -- Original dataframe
+    cols -- Columns to be exploded
+    Return: The OG Dataframe with additional columns for every class in categoric attributes from cols
+    """
+    
     def explode(self, df, cols):
         new_cols = []
         for col in cols:
@@ -200,10 +239,22 @@ class classificationModels:
             df[name] = np.where(df[col] == key, 1, 0)
         return df
 
+    """Takes Correlation data and visualizes it with Seaborn Package
+    
+    Keyword arguments:
+    data -- data to be visualiszed
+    Return: Plot with Heatmap 
+    """
+    
     def plotHeatMap(self, data):
         sns.heatmap(data)
         plt.show()
 
+    """Uses accuracy_scores dict to visualize accuracys between models via bar diagram
+    
+    Return: Bar plot from accuracy_scores dict 
+    """
+    
     def plotAccuracy(self):
         df = pd.DataFrame(self.accuracy_scores)
         df['Genauigkeit der Modelle'] = ['Training', 'Testing']
@@ -211,6 +262,11 @@ class classificationModels:
         df.plot(kind='bar')
         plt.show()
 
+    """Function to fix column mistakes in OSM data for Karlsruhe
+    
+    Return: correct dataframe for training and testing
+    """
+    
     def fixOSMDataKarlsruhe(self):
         df_osm = pd.read_csv('api/data/OSM_data_karlsruhe.csv')
         df_2 = df_osm.loc[500:3748]

@@ -65,4 +65,50 @@ Woche 03.05.2022 bis 09.05.2022:
         - Problem: Der Tag des Unfalls ist nicht bekannt
             - Aber Jahr, Monat, Wochentag und Uhrzeit gegeben
             - Daher Wetter für alle Tage 
-        
+
+Woche 10.05.2022 bis 16.05.2022
+    - Wetterdaten
+        - Lösungen des Tagesproblems
+        - Datenholung für alle Unfälle
+    - OSM Data
+        - erste Erfassung der Daten
+        - viele der Datenpunkte nicht verfügbar
+    - Beginn der Projektarbeit
+
+Woche 17.05.2022 bis 23.05.2022
+    - OSM Data
+        - Erfassung der ersten vollständigen Datenpunkte
+            - Fehler bei der Anfrage an die API 
+            - Behandlung der Fehler
+            - Enorm hohe Laufzeit für alle Datenpunkte
+
+Woche 24.05.2022 bis 30.05.2022
+    - OSM Data
+        - Daten in einzelnen Paketen zusammenfassen und anschließend zusammenfügen
+    - Klassifizierer
+        - Recherche zu verschiedenen Klassifizierungstypen
+        - Vorberitung einer Klasse, um die Modelle vergleichen zu können
+
+Woche 31.05.2022 bis 06.06.2022
+    - Projektarbeit
+
+Woche 07.06.2022 bis 13.06.2022
+    - Klassifizierer
+        - Richtiges Zusammenfügen der Datenquellen
+        - Preprocessing der Daten
+
+Woche 14.06.2022 bis 20.06.2022
+    - Training und Validierung der Klassifizierer
+        - Gaussian Naive Bayes mit sehr geringer Genauigkeit
+            - Wechsel der Methode und 60% Genauigkeit
+        - Untersuchung der Modelle ohne zusätzliche Attribute
+            - Sehr ähnliche Genauigkeiten
+
+Woche 21.06.2022 bis 27.06.2022
+    - Korrleationsanalyse 
+        - keine Korrleationen zum Zielattribut vorhanden daher zusätzliche Datenqullen nutzlos
+        - Wahl der besten Methode
+    - Projektarbeit
+
+Woche 27.06.2022 bis 03.07.2022
+    - Projektarbeit
