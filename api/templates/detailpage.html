@@ -1,0 +1,90 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Test1</title>
+{%endblock%}
+{% block body %}
+<div>
+    <form method="post">
+        <button>Zurück zur Karte</button>
+    </form>
+    {% for incident in incidents%}
+    <table id="detail_table">
+        <tr>
+            <th colspan="2">
+                <h2>Unfall</h2>
+            </th>
+           
+        </tr>
+        <tr>
+            <td>Datum</td>
+                <td>
+                    {{incident.UMONAT}}.{{incident.UJAHR}}
+                </td>
+        </tr>
+        <tr>
+            <td>Wochentag</td>
+            <td>{{incident.UWOCHENTAG}}</td>
+        </tr>
+        <tr>
+            <td>Radfahrer involviert</td>
+            {% if incident.IstRad == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>PKW involviert</td>
+            {% if incident.IstPKW == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>Fußgänger involviert</td>
+            {% if incident.IstFuss == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>Motorrad involviert</td>
+            {% if incident.IstKrad == 1 %}
+                <td>
+                    Ja
+                </td>
+           {% else %}
+                <td>
+                    Nein
+                </td>
+           {% endif %}
+        </tr>
+        <tr>
+            <td>Unfallursache</td>
+            <td>{{incident.UART}}</td>
+        </tr>
+        <tr>
+            <td>Unfalltyp</td>
+            <td>{{incident.UTYP1}}</td>
+        </tr>
+      
+
+    </table>
+    {% endfor %}
+</div>
+{%endblock%}
+

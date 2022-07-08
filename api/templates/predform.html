@@ -1,0 +1,110 @@
+{% extends 'base.html'%}
+{% block head %}
+<title>Startseite</title>
+<link rel='icon' href="https://www.uni-siegen.de/presse/relaunch/downloads/cd/uni-siegen_farbig_150x150_rgb.jpg?lang=de"
+    type="imgae/x-icon" />
+{% endblock %}
+
+
+
+
+{% block body %}
+<div class="content">
+    <div id="top_header">
+        <h1>Eine Stadt/Gemeinde suchen:</h1>
+        <h2>Nur für die Städte Wuppertal und Karlsruhe</h2>
+    </div>
+
+
+    <div id="search_div">
+
+        <form autocomplete="off" method="post">
+            <div class="autocomplete" style="width:300px;">
+                <p>Koordinaten:</p>
+                <input type="text" name="long" id="long" class="predinput" placeholder="Longitude" value="8.025583264000034">
+                <input type="text" name="lat" id="lat" class="predinput" placeholder="Latitude" value="50.888834908000035">
+                <hr>
+                <p>Bitte Lichtverhältnisse angeben:</p>
+                <input type="radio" name="light_level" id="light_level_1" class="predinput" value="0" checked>
+                <label for="light_level_1">Tageslicht</label>
+                <input type="radio" name="light_level" id="light_level_2" class="predinput" value="1">
+                <label for="light_level_2">Dämmerung</label>
+                <input type="radio" name="light_level" id="light_level_3" class="predinput" value="2">
+                <label for="light_level_3">Dunkelheit</label>
+                <hr>
+                <p>Radfahrer involviert?:</p>
+                <input type="radio" name="isRad" id="isRadJa"></input>
+                <label for="isRadJa">Ja</label>
+                <input type="radio" name="isRad" id="isRadNein" checked></input>
+                <label for="isRadNein">Nein</label>
+                <hr>
+                <p>PKW involviert?:</p>
+                <input type="radio" name="isPKW" id="isPKWJa"></input>
+                <label for="isPKWJa">Ja</label>
+                <input type="radio" name="isPKW" id="isPKWNein" checked></input>
+                <label for="isPKWNein">Nein</label>
+                <hr>
+                <p>Kraftrad involviert?:</p>
+                <input type="radio" name="isKRAD" id="isKRADJa"></input>
+                <label for="isKRADJa">Ja</label>
+                <input type="radio" name="isKRAD" id="isKRADNein" checked></input>
+                <label for="isKRADNein">Nein</label>
+                <hr>
+                <p>Fußgänger involviert?:</p>
+                <input type="radio" name="isFUSS" id="isFUSSJa"></input>
+                <label for="isFUSSJa">Ja</label>
+                <input type="radio" name="isFUSS" id="isFUSSNein" checked></input>
+                <label for="isFUSSNein">Nein</label>
+                <hr>
+                <p>Sonstiges involviert?:</p>
+                <input type="radio" name="isSONSTIGE" id="isSONSTIGEJa"></input>
+                <label for="isSONSTIGEJa">Ja</label>
+                <input type="radio" name="isSONSTIGE" id="isSONSTIGENein" checked></input>
+                <label for="isSONSTIGENein">Nein</label>
+                <hr>
+                <p>Unfallart:</p>
+                <input type="radio" name="UART" id="UART0" value="0" checked></input>
+                <label for="UART0">0</label>
+                <input type="radio" name="UART" id="UART1" value="1"></input>
+                <label for="UART1">1</label>
+                <input type="radio" name="UART" id="UART2" value="2"></input>
+                <label for="UART2">2</label>
+                <input type="radio" name="UART" id="UART3" value="3"></input>
+                <label for="UART3">3</label>
+                <input type="radio" name="UART" id="UART4" value="4"></input>
+                <label for="UART4">4</label>
+                <input type="radio" name="UART" id="UART5" value="5"></input>
+                <label for="UART5">5</label>
+                <input type="radio" name="UART" id="UART6" value="6"></input>
+                <label for="UART6">6</label>
+                <input type="radio" name="UART" id="UART7" value="7"></input>
+                <label for="UART7">7</label>
+                <input type="radio" name="UART" id="UART8" value="8"></input>
+                <label for="UART8">8</label>
+                <input type="radio" name="UART" id="UART9" value="9"></input>
+                <label for="UART9">9</label>
+                <hr>
+                <p>Unfalltyp:</p>
+                <input type="radio" name="UTYP" id="UTYP1" value="1" checked></input>
+                <label for="UTYP1">Fahrunfall</label>
+                <input type="radio" name="UTYP" id="UTYP2" value="2"></input>
+                <label for="UTYP2">Abbiegeunfall</label>
+                <input type="radio" name="UTYP" id="UTYP3" value="3"></input>
+                <label for="UTYP3">Einbiegen / Kreuzen-Unfal</label>
+                <input type="radio" name="UTYP" id="UTYP4" value="4"></input>
+                <label for="UTYP4">Überschreiten-Unfal</label>
+                <input type="radio" name="UTYP" id="UTYP5" value="5"></input>
+                <label for="UTYP5">Unfall durch ruhenden Verkeh</label>
+                <input type="radio" name="UTYP" id="UTYP6" value="6"></input>
+                <label for="UTYP6">Unfall im Längsverkehr</label>
+                <input type="radio" name="UTYP" id="UTYP7" value="7"></input>
+                <label for="UTYP7">sonstiger Unfall</label>
+                <hr>
+                <input type="submit" value="Vorhersage" >
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+{% endblock %}

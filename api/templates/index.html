@@ -1,9 +1,10 @@
 {% extends 'base.html'%}
 {% block head %}
-<title>Test1</title>
+<title>Unfallatlas</title>
+<link rel='icon' href="https://www.uni-siegen.de/presse/relaunch/downloads/cd/uni-siegen_farbig_150x150_rgb.jpg?lang=de"
+    type="imgae/x-icon" />
 {%endblock%}
 {% block body %}
-
 <div class="content">
     <h1>
         Unfälle
@@ -11,10 +12,12 @@
     <div>
         <p>
             Your Filters
-             {%for filt in filtering %}
-                {{filt}}, 
+            Stadtname: {{city_name}},
+            {%for filt in filtering %}
+            {{filt}},
             {%endfor%}
         </p>
+        <div id="osm-map"></div>
     </div>
     <table cellspacing="0" cellpadding="0">
         <tr>
@@ -39,7 +42,7 @@
             <th>YGCSWGS84</th>
             <th>Google Link</th>
         </tr>
-{% for incident in incidents%}
+        {% for incident in incidents%}
         <tr>
             <td>{{incident.ULAND}}</td>
             <td>{{incident.UREGBEZ}}</td>
@@ -60,9 +63,11 @@
             <td>{{incident.IstSonstige}}</td>
             <td>{{incident.XGCSWGS84}}</td>
             <td>{{incident.YGCSWGS84}}</td>
-            <td class="outergmbutton"><a class="gmbutton" href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google Maps</a></td>
+            <td class="outergmbutton"><a class="gmbutton"
+                    href="http://maps.google.de/maps?q={{+incident.YGCSWGS84}},{{incident.XGCSWGS84}}">See on Google
+                    Maps</a></td>
         </tr>
-{%endfor%}
+        {%endfor%}
         <tr class="sumline">
             <td></td>
             <td></td>
@@ -76,9 +81,9 @@
             <td></td>
             <td></td>
             <td></td>
-{%for stat in statList%}
-            <td>{{ stat}}%</td>
-{%endfor%}
+            {%for stat in statList%}
+            <td>{{stat}}%</td>
+            {%endfor%}
             <td></td>
             <td></td>
             <td></td>
@@ -86,4 +91,152 @@
         </tr>
     </table>
 </div>
+
+<style>
+    .leaflet-tooltip-pane .text {
+        color: black;
+        font-weight: bold;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        font-size: 0px;
+    }
+</style>
+
+<script>
+
+    var map = null;
+    // Load different Icons
+    var carCrashIcon = L.icon({
+        iconUrl: "{{ url_for('static', filename='Icons/car-crash.svg')}}",
+        iconSize: [30, 90],
+        popupAnchor: [-3, -10],
+    });
+
+    var bicycleCrashIcon = L.icon({
+        iconUrl: filename = "{{ url_for('static', filename='Icons/bycicle.svg')}}",
+        iconSize: [20, 60],
+        popupAnchor: [-3, -76],
+    });
+
+    var personCrashIcon = L.icon({
+        iconUrl: "{{ url_for('static', filename='Icons/person.svg')}}",
+        iconSize: [20, 60],
+        popupAnchor: [-3, -10],
+    })
+
+    var motorcycleCrashIcon = L.icon({
+        iconUrl: "{{ url_for('static', filename='Icons/motorcycle.svg')}}",
+        iconSize: [20, 60],
+        popupAnchor: [-3, -10],
+    })
+
+
+    // Where you want to render the map.
+    var element = document.getElementById('osm-map');
+
+    // Height has to be set. You can do this in CSS too.
+    element.style = 'height:500px;';
+
+    // Create Leaflet map on map element.
+    map = L.map(element);
+
+    // Add OSM tile layer to the Leaflet map.
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+    // Create Red Circles on the map with radius depending on the count; Create Tooltip with Count as number
+    var clusters = JSON.parse('{{clusters|safe}}')
+    for (i in clusters) {
+        var text = L.tooltip({
+            permanent: true,
+            direction: 'center',
+            className: 'text'
+        })
+            .setContent("" + clusters[i]['count']);
+
+        L.circle([clusters[i]['y'], clusters[i]['x']], {
+            color: "red",
+            fillColor: "#f03",
+            fillOpacity: 0.5,
+            radius: (clusters[i]['count'] * 5)
+        }).bindTooltip(text).addTo(map);
+    }
+
+    // Target's GPS coordinates.
+    var locations = JSON.parse('{{locations|safe}}');
+
+    for (i in locations) {
+        // Maximum 200 Markers for performance reasons
+      
+        // Create marker element for every crash in list
+        target = L.latLng(locations[i].YGCSWGS84, locations[i].XGCSWGS84);
+
+        // Determine which Icon to Use
+        var iconToUse = determineIcon();
+
+        // Place marker on location
+        var marker = L.marker(target, { icon: iconToUse }).addTo(map);
+        var popUpContent = '<h2>Unfalldaten</h2><p>Jahr: ' + locations[i].UJAHR + '</p><p>Monat: ' + locations[i].UMONAT + '</p><p>Unfallart: ' + locations[i].UART + '</p><p>Unfalltyp: ' + locations[i].UTYP1 + '</p><a href="http://127.0.0.1:5000/incidentdetail/' + locations[i].ID + '/' + '{{city_name}}' + '" >Mehr Sehen</a>';
+        marker.bindPopup(popUpContent);
+    }
+
+    // Set map's center to target with zoom 12.
+    map.setView(target, 12);
+
+
+    function determineIcon() {
+        var iconToUse = null;
+        if (locations[i].IstRad) {
+            iconToUse = bicycleCrashIcon;
+        } else if (locations[i].IstPKW) {
+            iconToUse = carCrashIcon;
+        } else if (locations[i].IstFuss) {
+            iconToUse = personCrashIcon;
+        } else if (locations[i].IstKrad) {
+            iconToUse = motorcycleCrashIcon;
+        } else {
+            iconToUse = carCrashIcon;
+        }
+        return iconToUse;
+    }
+
+    // Function to get style of select CSS class
+    function getStyle(ruleClass) {
+        for (var s = 0; s < document.styleSheets.length; s++) {
+            var sheet = document.styleSheets[s];
+            if (sheet.href == null) {
+                var rules = sheet.cssRules ? sheet.cssRules : sheet.rules;
+                if (rules == null) return null;
+                for (var i = 0; i < rules.length; i++) {
+                    if (rules[i].selectorText == ruleClass) {
+                        return rules[i].style;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    map.on('zoomstart', function () {
+        var zoomLevel = map.getZoom();
+        var tooltip = getStyle('.leaflet-tooltip-pane .text');
+        switch (zoomLevel) {
+            case 15:
+                tooltip.fontSize = 15 + 'px';
+                break;
+            case 16:
+                tooltip.fontSize = 30 + 'px';
+                break;
+            case 17:
+                tooltip.fontSize = 50 + 'px';
+                break;
+            default:
+                tooltip.fontSize = 0 + 'px';
+        }
+    });
+</script>
 {%endblock%}

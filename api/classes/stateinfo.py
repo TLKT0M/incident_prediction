@@ -20,4 +20,4 @@ class Stateinfo(db.Model):
     Lat= db.Column(db.Float, nullable=True)
 
     def __repr__(self):
-        return '<vehicleInfo %r>' % self.id
+        return 'Name ' + self.Name

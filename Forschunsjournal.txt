@@ -1,0 +1,114 @@
+Woche 05.04.2022 bis 12.04.2022
+    - Data Preprocessing und Cleaning
+        - Einlesen des vorgegebenen Datensatzes und dessen Analyse
+        - Analyse der Datensätze von vorherigen Jahren und kritische Attribute finden und vermeiden
+        - Erstellung einer SQLite-Datenbank, um mehrmaliges Einlesen der Daten zu vermeiden
+        - Abänderung falscher Dateiformate in den Daten (Floats getrennt mit Komma anstatt mit Punkt)
+    - Aufsetzen einer REST-Api
+        - Erste Online API zur Abfrage und Analyse der Daten
+            - Länderkennung muss von Nutzer bekannt sein
+        - Durch Nutzung einer Api können weitere Javascript-Pakete oder HTML-Frameworks eingebunden, unabhängig von dem Betriebssystem
+        - Erstellung einer Tabelle zur Visualisierung der Daten 
+    - Informationsdarstellung
+        - Einbindung einer Karte von Open Street Map, um Orte der Unfälle zu zeigen
+        - Zur Darstellung der Marker auf der Karte wird das Javascript-Paket "Leaflet" genutzt
+        - Problematiken aufgrund der Änderungen des Datenformats in .json-Format und Syntax von Flask und Jinja
+
+Woche 12.04.2022 bis 19.04.2022
+    - Informationsdarstellung
+        - Einbindung von seperaten Icons für die Marker abhängig von der Art des Unfalls
+    - Erstellung Startseite für Interface
+        - Nutzer kann Stadtnamen eingeben
+        - Interpretation des Stadtnames und Übersetung in Nummer für Api durch Backend
+        - Weiterleitung zur Ergebnisseite 
+        - Bug aufgrund eines einzelnen Anführungszeichens in den Stadtdaten, das vor Umformatierung zu .json entfernt werden muss
+        - Fehler in den Regierungsbezirken behoben (Überflüssiges Exit)
+        - Bei falscher Eingabe der Stadt keine Abfrage an Api
+        - Datenbankbefehle zur Einbindung von Regierungsbezirken in Datenbank
+    - Clustering 
+        - Zunächst KMeans beispiele zum laufen gebracht 
+        - Densitiybased mit DBSCAN
+        - Problematiken mit der Auswahl der Parameter
+        - Ausgabe der Cluster mittels PyPlot
+        - Gruppieren der Cluster und Finden des Mittelpunkts
+        - Übergabe der Werte 
+        - Integration der Cluster Mittelpunkte in die Karte und größenbasiertes anzeigen
+
+Woche 19.04.2022 bis 26.04.2022
+    - Karte
+        - Fehler durch das Laden der Icons
+        - Icons werden lokal gespeichert und geladen
+        - Default Icon wenn kein Icon geladen werden kann
+        - Informationen bei Klick auf den Marker
+            - Darstellung der Informationen des Unfalls beim Klick auf das Icon
+            - Enum-Klassen erstellen, um INT-Werte in zugehörige Strings umzuwandeln 
+            - Einfügen der Informationen in jedes Unfall-Icon
+
+Woche 26.04.2022 bis 02.05.2022
+    - Unfallinformationen bei Markern
+        - Neue Informationen zu dem Unfall auf extra Seite, die durch Klick im Popup geöffnet werden kann
+        - Hinzufügen weiterer Enums
+    - Cluster
+        - Cluster werden jetzt auch unter Windows Systemen angezeigt
+        - Hinzufügen eines Tooltips zu jeden Cluster, um Größe der Cluster mit Zahl anzuzeigen
+        - Tooltips werden erst ab einer bestimmten Zoom-Größe angezeigt
+        - Schriftgröße ändert sich abhängig von dem Zoom-Level
+    - Allgemeine Fixes
+        - Beim Input der Stadt wird das erste Suchergebnis also Input genommen bei Klick auf Submit
+        - Zurück Knopf bei der detaillierten Beschreibung des Unfalls 
+
+Woche 03.05.2022 bis 09.05.2022:
+    - Wuppertal Daten
+        - Einlesen der verschiedenen Datensätzen aus dem .json Format
+        - Lösen des Point-in-Polygon (PIP) Problems um Unfälle in Zonen zu finden
+    - Wetterdaten für Wuppertal
+        - Problem: Der Tag des Unfalls ist nicht bekannt
+            - Aber Jahr, Monat, Wochentag und Uhrzeit gegeben
+            - Daher Wetter für alle Tage 
+
+Woche 10.05.2022 bis 16.05.2022
+    - Wetterdaten
+        - Lösungen des Tagesproblems
+        - Datenholung für alle Unfälle
+    - OSM Data
+        - erste Erfassung der Daten
+        - viele der Datenpunkte nicht verfügbar
+    - Beginn der Projektarbeit
+
+Woche 17.05.2022 bis 23.05.2022
+    - OSM Data
+        - Erfassung der ersten vollständigen Datenpunkte
+            - Fehler bei der Anfrage an die API 
+            - Behandlung der Fehler
+            - Enorm hohe Laufzeit für alle Datenpunkte
+
+Woche 24.05.2022 bis 30.05.2022
+    - OSM Data
+        - Daten in einzelnen Paketen zusammenfassen und anschließend zusammenfügen
+    - Klassifizierer
+        - Recherche zu verschiedenen Klassifizierungstypen
+        - Vorberitung einer Klasse, um die Modelle vergleichen zu können
+
+Woche 31.05.2022 bis 06.06.2022
+    - Projektarbeit
+
+Woche 07.06.2022 bis 13.06.2022
+    - Klassifizierer
+        - Richtiges Zusammenfügen der Datenquellen
+        - Preprocessing der Daten
+
+Woche 14.06.2022 bis 20.06.2022
+    - Training und Validierung der Klassifizierer
+        - Gaussian Naive Bayes mit sehr geringer Genauigkeit
+            - Wechsel der Methode und 60% Genauigkeit
+        - Untersuchung der Modelle ohne zusätzliche Attribute
+            - Sehr ähnliche Genauigkeiten
+
+Woche 21.06.2022 bis 27.06.2022
+    - Korrleationsanalyse 
+        - keine Korrleationen zum Zielattribut vorhanden daher zusätzliche Datenqullen nutzlos
+        - Wahl der besten Methode
+    - Projektarbeit
+
+Woche 27.06.2022 bis 03.07.2022
+    - Projektarbeit
