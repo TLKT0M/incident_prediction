@@ -36,11 +36,11 @@ class classificationModels:
     
         df_merged = pd.merge(df_osm, df_weather, on=['incident_ID'])
         df_incident = self.prepeocessIncidentData()
-        df_merged = df_incident
+        df_incident.to_csv('test.csv')
+        # df_merged = df_incident
         # Combine Datapoints and remove ID uses for combination
-        # df_merged = pd.merge(df_merged, df_incident, on=['incident_ID'])
+        df_merged = pd.merge(df_merged, df_incident, on=['incident_ID'])
         df_merged.drop('incident_ID', axis=1, inplace=True)
-        df_merged.corr()['UKATEGORIE'].to_csv('test.csv')
         # Extract Y and X Values for Models
         y = df_merged['UKATEGORIE'].to_numpy()
         df_merged.drop('UKATEGORIE', axis=1, inplace=True)
