@@ -1,6 +1,7 @@
 # from crypt import methods
 import numpy as np
 import json
+import pickle
 from sqlalchemy import text
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -45,27 +46,86 @@ def JsonBuilder(obj: Incident):
 @app.route('/pred/',methods=['GET', 'POST'])
 def pred_interface():
     if request.method == 'POST':
-        print(request.form)
-        # TODO Loed Model and predict value
-        return redirect(url_for('prediction',lat=request.form['lat'],long=request.form['long'], additionals=request.form['additionals']))
+        
+        light = request.form.getlist('light_level')
+        bicycle = request.form.getlist('isRad')
+        pkw = request.form.getlist('isPKW')
+        krad = request.form.getlist('isKRAD')
+        fuss = request.form.getlist('isFUSS')
+        sonstige = request.form.getlist('isSONSTIGE') 
+        unfallart = request.form.getlist('UART')
+        unfalltyp = request.form.getlist('UTYP')
+
+        typ_list = []
+        if int(unfalltyp[0]) == 6:
+            typ_list = [1, 0, 0, 0, 0, 0, 0]
+        elif int(unfalltyp[0]) == 3:
+            typ_list = [0, 1, 0, 0, 0, 0, 0]
+        elif int(unfalltyp[0]) == 7:
+            typ_list = [0, 0, 1, 0, 0, 0, 0] 
+        elif int(unfalltyp[0]) == 1:
+            typ_list = [0, 0, 0, 1, 0, 0, 0]
+        elif int(unfalltyp[0]) == 2:
+            typ_list = [0, 0, 0, 0, 1, 0, 0]   
+        elif int(unfalltyp[0]) == 4:
+            typ_list = [0, 0, 0, 0, 0, 1, 0]   
+        else:
+            typ_list = [0, 0, 0, 0, 0, 0, 1]
+
+        light_list = []
+        if int(light[0]) == 0:
+            light_list = [1, 0, 0]
+        elif int(light[0]) == 2:
+            light_list = [0, 1, 0]
+        else:
+            light_list = [0, 0, 1]
+
+        art_list = []
+        if int(unfallart[0]) == 2:
+            art_list = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 5:
+            art_list = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 6:
+            art_list = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 0:
+            art_list = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 1:
+            art_list = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 3:
+            art_list = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
+        elif int(unfallart[0]) == 4:
+            art_list = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        elif int(unfallart[0]) == 8:
+            art_list = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+        elif int(unfallart[0]) == 9:
+            art_list = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+        else:
+            art_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+        
+        input_data =  [int(bicycle[0]), int(pkw[0]), int(fuss[0]), int(krad[0]), int(sonstige[0])]
+        input_data = input_data + typ_list + light_list + art_list
+        model_input = np.array([input_data])
+        final_model = pickle.load(open('api/static/models/final_model.sav', 'rb'))
+
+        model_value = final_model.predict(model_input)
+        print(model_value)
+        return redirect(url_for('prediction', lat=request.form['lat'], long=request.form['long'], model_value=model_value))
     return render_template("predform.html")
 
 """Finished Prediction side with additional information
-"""
+""" 
 
-@app.route('/prediction/<string:lat>/<string:long>/<string:additionals>/', methods=['GET', 'POST'])
-def prediction(lat,long,additionals):
+@app.route('/prediction/<string:lat>/<string:long>/<int:model_value>/', methods=['GET', 'POST'])
+def prediction(lat, long, model_value):
     pred_class = Prediction()
     pred_class.lat=lat
-    pred_class.additionals=additionals
     pred_class.long=long
     date = datetime.today().strftime('%d-%m-%Y')
     dt_string = datetime.today().strftime('%d-%m-%Y') 
     weather_dataset = get_weather(long=long,lat=lat,date=dt_string,acc_hour=datetime.now().strftime("%H:%M:%S"))
-    print(weather_dataset)
-    street= get_node_info(long=long,lat=lat)
+    street = get_node_info(long=long,lat=lat)
     
-    return render_template("predpage.html",predictions=[pred_class],weather=weather_dataset, street=street)
+    return render_template("predpage.html",predictions=[pred_class],weather=weather_dataset, street=street, model_value=model_value)
 
 """Side for handling click to detail page from tooltip
 """
@@ -96,15 +156,17 @@ def start_page():
 
     df['Name'] = df['Name'].str.replace(r"[\']", r"") 
     if request.method == 'POST':
-        city_name = request.form['input_city']
-        df_res = df.loc[df['Name'] == city_name]
-        if not df_res.empty:    
-            land = df_res['Land'].iloc[0]
-            req = df_res['RB'].iloc[0]
-            kreis = df_res['Kreis'].iloc[0]
-            gem = df_res['Gem'].iloc[0]
-            return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem, city_name=city_name))
-
+        if request.form['submit_button'] == 'Anzeigen':
+            city_name = request.form['input_city']
+            df_res = df.loc[df['Name'] == city_name]
+            if not df_res.empty:    
+                land = df_res['Land'].iloc[0]
+                req = df_res['RB'].iloc[0]
+                kreis = df_res['Kreis'].iloc[0]
+                gem = df_res['Gem'].iloc[0]
+                return redirect(url_for('incident', land=land, reg=req, kreis=kreis, gem=gem, city_name=city_name))
+        elif request.form['submit_button'] == "Unfallvoraussage":
+            return redirect(url_for('pred_interface'))
     df_dict = df['Name'].to_dict()
     cities = json.dumps(df_dict)
     return render_template('startpage.html', cities=cities) 
